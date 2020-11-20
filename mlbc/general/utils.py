@@ -8,7 +8,7 @@ def read_data(file):
     """Read a dataframe from a CSV file.
 
     Parameters:
-    file (string): path to a CSV file
+    file (string): path to a CSV file.
 
     Returns:
     DataFrame holding the contents of the file.
@@ -47,6 +47,7 @@ def split_data_frame(df, split=0.2, seed=None):
 
     Returns:
     3-tuple of DataFrame, DataFrame, DataFrame (train, validation, test).
+
     """
     n = len(df)
 
@@ -71,8 +72,8 @@ def split_data_frame(df, split=0.2, seed=None):
 def binary_encode(df, feature, n=5):
     """Binary encode a categorical feature.
 
-    Take the top n values of feature and add features to df to binary encode
-    feature.  The dataframe is modified in place.
+    Take the top `n` values of `feature` and add features to `df` to binary
+    encode `feature`. The dataframe is modified in place.
 
     Parameters:
     df (DataFrame): the dataframe to add the feature to.
@@ -81,6 +82,7 @@ def binary_encode(df, feature, n=5):
 
     Returns:
     List of new features.
+
     """
     assert feature in df
 
@@ -107,6 +109,7 @@ def encode_age(df, year_field, current_year):
 
     Returns:
     Constant value ['age'].
+
     """
     assert year_field in df
     assert df[year_field].dtype == 'int64'
@@ -141,6 +144,7 @@ def prepare_X(df, base, fns=[]):
 
     Returns:
     ndarray of the prepared data.
+
     """
     df = df.copy()
     features = base.copy()
@@ -167,6 +171,7 @@ def linear_regression(X, y, r=0.0):
 
     Returns:
     Tuple of float, ndarray (bias, array of weights)
+
     """
     ones = np.ones(X.shape[0])
     X = np.column_stack([ones, X])
@@ -190,6 +195,7 @@ def rmse(y, y_pred):
 
     Returns:
     float
+
     """
     error = y_pred - y
     mse = (error ** 2).mean()
