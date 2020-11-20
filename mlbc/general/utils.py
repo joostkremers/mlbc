@@ -68,6 +68,32 @@ def split_data_frame(df, split=0.2, seed=None):
     return df_train, df_val, df_test
 
 
+def binary_encode(df, feature, n=5):
+    """Binary encode a categorical feature.
+
+    Take the top n values of feature and add features to df to binary encode
+    feature.  The dataframe is modified in place.
+
+    Parameters:
+    df (DataFrame): the dataframe to add the feature to.
+    feature (string): feature in df to be binary encoded.
+    n (int): number of values for feature to encode.
+
+    Returns:
+    List of new features.
+    """
+    assert feature in df
+
+    top_values = df[feature].value_counts().head(n)
+    new_features = []
+    for v in top_values.keys():
+        binary_feature = feature + '_%s' % v
+        df[binary_feature] = (df[feature] == v).astype(int)
+        new_features.append(binary_feature)
+
+    return new_features
+
+
 def encode_age(df, year_field, current_year):
     """Encode the age of an item as a feature.
 
