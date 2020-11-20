@@ -5,11 +5,29 @@ import numpy as np
 
 
 def read_data(file):
+    """Read a dataframe from a CSV file.
+
+    Parameters:
+    file (string): path to a CSV file
+
+    Returns:
+    DataFrame holding the contents of the file.
+    """
     df = pd.read_csv(file)
     return df
 
 
 def clean_alphanum_data(df):
+    """Clean up alphanumeric data in a dataframe.
+
+    Convert all strings to lower case and replace spaces with underscores.
+
+    Parameters:
+    df (DataFrame): the dataframe to be cleaned.
+
+    Returns:
+    None.
+    """
     df.columns = df.columns.str.lower().str.replace(' ', '_')
 
     string_columns = list(df.dtypes[df.dtypes == 'object'].index)
@@ -18,6 +36,18 @@ def clean_alphanum_data(df):
 
 
 def split_data_frame(df, split=0.2, seed=None):
+    """Split a dataframe into a train, validation and test set.
+
+    The dataframe is first randomized and then split into three parts.
+
+    Parameters:
+    df (DataFrame): the dataframe to split.
+    split (float):  fraction of the dataframe to use for validation and test sets.
+    seed (int):     the seed used for randomization.
+
+    Returns:
+    3-tuple of DataFrame, DataFrame, DataFrame (train, validation, test).
+    """
     n = len(df)
 
     n_val = int(split * n)
@@ -39,6 +69,23 @@ def split_data_frame(df, split=0.2, seed=None):
 
 
 def prepare_X(df, base):
+    """Prepare a dataframe for learning.
+
+    Convert the dataframe to a Numpy array:
+
+    - Extract the features in `base`.
+
+    - Fill any missing data with 0.
+
+    Note that `df` is not modified.
+
+    Parameters:
+    df (DataFrame): dataframe to convert.
+    base (list of strings): list of fields in the dataframe to be used for the array.
+
+    Returns:
+    ndarray of the prepared data.
+    """
     df = df.copy()
     features = base.copy()
 
@@ -50,6 +97,16 @@ def prepare_X(df, base):
 
 
 def linear_regression(X, y, r=0.0):
+    """Perform linear regression.
+
+    Parameters:
+    X (ndarray): array of input values.
+    y (ndarray): target values.
+    r (float): regularization amount.
+
+    Returns:
+    Tuple of float, ndarray (bias, array of weights)
+    """
     ones = np.ones(X.shape[0])
     X = np.column_stack([ones, X])
 
@@ -64,6 +121,15 @@ def linear_regression(X, y, r=0.0):
 
 
 def rmse(y, y_pred):
+    """Compute the root mean square error.
+
+    Parameters:
+    y (ndarray): target values.
+    y_pred (ndarray): predicted values.
+
+    Returns:
+    float
+    """
     error = y_pred - y
     mse = (error ** 2).mean()
     return np.sqrt(mse)
