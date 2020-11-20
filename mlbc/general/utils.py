@@ -131,7 +131,8 @@ def prepare_X(df, base, fns=[]):
 
       The elements of `fns` should be tuples `(fn, list_of_args)`. Before
       calling each function, `df` is prepended to the list of arguments. The
-      return value should be a list of names of the new feature(s).
+      functions should add the new features to `df`, and they should return a
+      list of the names of the new feature(s) as strings.
 
     - Fill any missing data with 0.
 
