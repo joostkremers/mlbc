@@ -68,6 +68,28 @@ def split_data_frame(df, split=0.2, seed=None):
     return df_train, df_val, df_test
 
 
+def encode_age(df, year_field, current_year):
+    """Encode the age of an item as a feature.
+
+    The age is calculated on the basis of the contents of `year_field` and
+    `current_year`.
+
+    Parameters:
+    df (DataFrame): dataframe to encode the age in.
+    year_feature (string): the feature that encodes the relevant year.
+    current_year (int): the year used to calculate the age.
+
+    Returns:
+    Constant value ['age'].
+    """
+    assert year_field in df
+    assert df[year_field].dtype == 'int64'
+
+    df['age'] = current_year - df[year_field]
+
+    return ['age']
+
+
 def prepare_X(df, base, fns=[]):
     """Prepare a dataframe for learning.
 
