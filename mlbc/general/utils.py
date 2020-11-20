@@ -68,12 +68,19 @@ def split_data_frame(df, split=0.2, seed=None):
     return df_train, df_val, df_test
 
 
-def prepare_X(df, base):
+def prepare_X(df, base, fns=[]):
     """Prepare a dataframe for learning.
 
     Convert the dataframe to a Numpy array:
 
     - Extract the features in `base`.
+
+    - Apply the functions in `fns` to the dataframe to derive new features from
+      existing ones (e.g., for binary encoding).
+
+      The elements of `fns` should be tuples `(fn, list_of_args)`. Before
+      calling each function, `df` is prepended to the list of arguments. The
+      return value should be a list of names of the new feature(s).
 
     - Fill any missing data with 0.
 
@@ -82,12 +89,18 @@ def prepare_X(df, base):
     Parameters:
     df (DataFrame): dataframe to convert.
     base (list of strings): list of fields in the dataframe to be used for the array.
+    fns (list of tuples (function, arg list)): feature engineering functions.
 
     Returns:
     ndarray of the prepared data.
     """
     df = df.copy()
     features = base.copy()
+
+    for fn, args in fns:
+        args = [df] + args
+        new_features = fn(*args) # Note: this should also modify the local copy of `df`!
+        features += new_features
 
     df_num = df[features]
     df_num = df_num.fillna(0)
