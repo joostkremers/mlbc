@@ -194,22 +194,3 @@ def rmse(y, y_pred):
     error = y_pred - y
     mse = (error ** 2).mean()
     return np.sqrt(mse)
-
-
-# base = ['engine_hp', 'engine_cylinders', 'highway_mpg', 'city_mpg', 'popularity']
-
-# df = read_data('data.csv')
-
-# clean_alphanum_data(df)
-
-# df_train, df_val, df_test = split_data_frame(df, split=0.2, seed=2)
-
-# # Apply log transformation to the output values and store these separately.
-# y_train = np.log1p(df_train.msrp.values)
-# y_val = np.log1p(df_val.msrp.values)
-# y_test = np.log1p(df_test.msrp.values)
-
-# # Remove the target value from the dataframes.
-# del df_train['msrp']
-# del df_val['msrp']
-# del df_test['msrp']
