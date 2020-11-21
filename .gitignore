@@ -1,3 +1,4 @@
 /pyproject.toml
 /poetry.lock
 /org/ltximg/
+__pycache__/
