@@ -99,23 +99,23 @@ Cleaning up the data:
   - The =str= attribute makes it possible to apply string operations to all the
     elements in the column at once.
 
-#+begin_src python :results file figures/figure1.png
+#+begin_src python :results file figures/figure2-1.png
   sns.displot(df.msrp, kde=False)
-  plt.savefig('figures/figure1.png')
-  'figures/figure1.png'
+  plt.savefig('figures/figure2-1.png')
+  'figures/figure2-1.png'
 #+end_src
 
 #+RESULTS:
-[[file:figures/figure1.png]]
+[[file:figures/figure2-1.png]]
 
-#+begin_src python :results file figures/figure2.png
+#+begin_src python :results file figures/figure2-2.png
   sns.displot(df.msrp[df.msrp < 100000], kde=False)
-  plt.savefig('figures/figure2.png')
-  'figures/figure2.png'
+  plt.savefig('figures/figure2-2.png')
+  'figures/figure2-2.png'
 #+end_src
 
 #+RESULTS:
-[[file:figures/figure2.png]]
+[[file:figures/figure2-2.png]]
 
 This kind of distribution is difficult for machine learning algorithms, esp.
 linear regression, because of the long tail of high prices, which occur
@@ -129,15 +129,15 @@ y_{new} = log(y+1)
 Adding 1 to the original target value avoids calculating log(0) = -∞. Numpy has
 a function for this purpose, =np.log1p=:
 
-#+begin_src python :results file figures/figure3.png
+#+begin_src python :results file figures/figure2-3.png
   log_price = np.log1p(df.msrp)
   sns.displot(log_price)
-  plt.savefig('figures/figure3.png')
-  'figures/figure3.png'
+  plt.savefig('figures/figure2-3.png')
+  'figures/figure2-3.png'
 #+end_src
 
 #+RESULTS:
-[[file:figures/figure3.png]]
+[[file:figures/figure2-3.png]]
 
 This so-called "normal or Gaussian distribution" is more amenable to machine
 learning algorithms.
@@ -319,17 +319,17 @@ Applying the model to the training data:
 
 And plot the result:
 
-#+begin_src python :results file ~/figures/figure4.png
+#+begin_src python :results file ~/figures/figure2-4.png
   plt.clf()
   sns.histplot(y_pred, label='pred')
   sns.histplot(y_train, label='y')
   plt.legend()
-  plt.savefig('figures/figure4.png')
-  'figures/figure4.png'
+  plt.savefig('figures/figure2-4.png')
+  'figures/figure2-4.png'
 #+end_src
 
 #+RESULTS:
-[[file:figures/figure4.png]]
+[[file:figures/figure2-4.png]]
 
 Note: the predicted and the actual values are quite a bit apart. This is due to
 the fact that the predictions here are based on only five features.
@@ -458,18 +458,18 @@ Training and evaluation can now be done as follows:
 
 Plotting the distribution of the predicted values:
 
-#+begin_src python :results file ~/figures/figure5.png
+#+begin_src python :results file ~/figures/figure2-5.png
   plt.clf()
   sns.histplot(y_pred, label='pred')
   sns.histplot(y_val, label='y', color="red")
   plt.legend()
 
-  plt.savefig('figures/figure5.png')
-  'figures/figure5.png'
+  plt.savefig('figures/figure2-5.png')
+  'figures/figure2-5.png'
 #+end_src
 
 #+RESULTS:
-[[file:figures/figure5.png]]
+[[file:figures/figure2-5.png]]
 
 **** Categorical features
 
@@ -798,7 +798,7 @@ Converting this to a data frame and a matrix:
 
 Applying the model yields a value that is the logarithm of the predicted price.
 To calculate the price, apply the exponent function:
-\AA
+
 #+begin_src python :results output
   y_pred = w_0 + X_test.dot(w)
   suggestion = np.expm1(y_pred)
