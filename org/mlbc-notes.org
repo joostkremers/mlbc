@@ -1,27 +1,36 @@
-#+TITLE: Deep Learning Bookcamp, ch. 2
-#+PROPERTY: header-args:python :session ch2
+#+TITLE: Notes on "Deep Learning Bookcamp"
+#+PROPERTY: header-args:python :exports both :eval never-export
+#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
 
 * Setup
+
+Run the code in a virtual environment:
+
 #+begin_src emacs-lisp :results silent
-  (pyvenv-workon "car-price-QhnioYpP-py3.8")
+  (pyvenv-workon "mlbc-JThvy3A1-py3.8")
 #+end_src
 
-* Predicting car prices
+* Chapter 2: Predicting car prices
 
-** Imports
+** Notes to chapter 2
+:PROPERTIES:
+:header-args:python+: :session ch2
+:END:
+
+*** Imports
 
 #+begin_src python :results silent
-import pandas as pd
-import numpy as np
+  import pandas as pd
+  import numpy as np
 
-from matplotlib import pyplot as plt
-import seaborn as sns
+  from matplotlib import pyplot as plt
+  import seaborn as sns
 #+end_src
 
-** Reading and preparing the data
+*** Reading and preparing the data
 
 #+begin_src python :results value
-  df = pd.read_csv('data.csv')
+  df = pd.read_csv('../data/cars.csv')
   len(df)
 #+end_src
 
@@ -39,7 +48,7 @@ import seaborn as sns
 : 2  BMW    1 Series  2011  premium unleaded (required)  ...           28        20       3916  36350
 : 3  BMW    1 Series  2011  premium unleaded (required)  ...           28        18       3916  29450
 : 4  BMW    1 Series  2011  premium unleaded (required)  ...           28        18       3916  34500
-: 
+:
 : [5 rows x 16 columns]
 
 #+begin_src python
@@ -89,7 +98,7 @@ Cleaning up the data:
 : 2  bmw    1_series  2011  premium_unleaded_(required)      300.0               6.0            manual  ...                luxury,high-performance       compact         coupe          28       20        3916  36350
 : 3  bmw    1_series  2011  premium_unleaded_(required)      230.0               6.0            manual  ...                     luxury,performance       compact         coupe          28       18        3916  29450
 : 4  bmw    1_series  2011  premium_unleaded_(required)      230.0               6.0            manual  ...                                 luxury       compact   convertible          28       18        3916  34500
-: 
+:
 : [5 rows x 16 columns]
 
 - Notes:
@@ -99,23 +108,23 @@ Cleaning up the data:
   - The =str= attribute makes it possible to apply string operations to all the
     elements in the column at once.
 
-#+begin_src python :results file figures/figure2-1.png
+#+begin_src python :results file figures/figure2-01.png
   sns.displot(df.msrp, kde=False)
-  plt.savefig('figures/figure2-1.png')
-  'figures/figure2-1.png'
+  plt.savefig('figures/figure2-01.png')
+  'figures/figure2-01.png'
 #+end_src
 
 #+RESULTS:
-[[file:figures/figure2-1.png]]
+[[file:figures/figure2-01.png]]
 
-#+begin_src python :results file figures/figure2-2.png
+#+begin_src python :results file figures/figure2-02.png
   sns.displot(df.msrp[df.msrp < 100000], kde=False)
-  plt.savefig('figures/figure2-2.png')
-  'figures/figure2-2.png'
+  plt.savefig('figures/figure2-02.png')
+  'figures/figure2-02.png'
 #+end_src
 
 #+RESULTS:
-[[file:figures/figure2-2.png]]
+[[file:figures/figure2-02.png]]
 
 This kind of distribution is difficult for machine learning algorithms, esp.
 linear regression, because of the long tail of high prices, which occur
@@ -129,15 +138,15 @@ y_{new} = log(y+1)
 Adding 1 to the original target value avoids calculating log(0) = -∞. Numpy has
 a function for this purpose, =np.log1p=:
 
-#+begin_src python :results file figures/figure2-3.png
+#+begin_src python :results file figures/figure2-03.png
   log_price = np.log1p(df.msrp)
   sns.displot(log_price)
-  plt.savefig('figures/figure2-3.png')
-  'figures/figure2-3.png'
+  plt.savefig('figures/figure2-03.png')
+  'figures/figure2-03.png'
 #+end_src
 
 #+RESULTS:
-[[file:figures/figure2-3.png]]
+[[file:figures/figure2-03.png]]
 
 This so-called "normal or Gaussian distribution" is more amenable to machine
 learning algorithms.
@@ -167,7 +176,7 @@ msrp                    0
 dtype: int64
 #+end_example
 
-** Setting up the validation framework
+*** Setting up the validation framework
 
 *** Splitting the data into a train, a validation and a test set
 - 20% for validation
@@ -220,13 +229,16 @@ where:
 
 - X is a matrix of input features
 - y is a vector of target values
-- X^{T} is the *transpose* of X (=4X.T= in Numpy)
+- X^{T} is the *transpose* of X (=X.T= in Numpy)
 - X^{-1} is the *inverse* of X (=np.linalg.inv= in Numpy)
+
 
 The dot product in Numpy is obtained with the =dot()= method. Thus, the formula
 above becomes:
 
+#+begin_src python
 w = inv(X.T.dot(X)).dot(X.T).dot(y)
+#+end_src
 
 **** Implementing the normal equation
 
@@ -250,7 +262,7 @@ In Python:
       return w[0], w[1:]
 #+end_src
 
-**** Predicting the price: baseline solution
+*** Predicting the price: baseline solution
 
 We select a few features to illustrate how things work:
 
@@ -281,7 +293,7 @@ I guess what's not so great about it is that it reduces a term to zero in the
 equation, causing the predicted price to be lower than one might expect. This is
 the formula for predicting the price:
 
-g(x) = w_{0} + x_{1}w_{1} + x_{2}w_{}_{2} + x_{3}w_{3} + ...
+g(x) = w_{0} + x_{1}w_{1} + x_{2}w_{2} + x_{3}w_{3} + ...
 
 Now if one feature is set to 0, the total sum g(x) is lower than it would have
 been if the feature were not 0. A better solution might be to set unknown
@@ -319,17 +331,17 @@ Applying the model to the training data:
 
 And plot the result:
 
-#+begin_src python :results file ~/figures/figure2-4.png
+#+begin_src python :results file figures/figure2-04.png
   plt.clf()
   sns.histplot(y_pred, label='pred')
-  sns.histplot(y_train, label='y')
+  sns.histplot(y_train, label='y', color='red')
   plt.legend()
-  plt.savefig('figures/figure2-4.png')
-  'figures/figure2-4.png'
+  plt.savefig('figures/figure2-04.png')
+  'figures/figure2-04.png'
 #+end_src
 
 #+RESULTS:
-[[file:figures/figure2-4.png]]
+[[file:figures/figure2-04.png]]
 
 Note: the predicted and the actual values are quite a bit apart. This is due to
 the fact that the predictions here are based on only five features.
@@ -340,7 +352,7 @@ should use =sns.displot()= or =sns.histplot()= instead, but only the latter
 seems to allow overlaying two plots.
 #+end_remark
 
-**** Evaluating the model: Root Mean Square Error
+*** Evaluating the model: Root Mean Square Error
 
 The Root Mean Square Error (RMSE) is a common measure for the quality of a
 model:
@@ -355,7 +367,7 @@ RMSE in Python using Numpy:
   def rmse(y, y_pred):
       # y: array of target values
       # y_pred: array of predicted values
-    
+
       error = y_pred - y
       mse = (error ** 2).mean()
       return np.sqrt(mse)
@@ -418,7 +430,7 @@ simpler:
 #+RESULTS:
 : validation: 0.7616530991301577
 
-**** Simple feature engineering
+*** Simple feature engineering
 
 We can add new features based on the existing features. For example, the year a
 car is produced is only a good predictor of price if it's interpreted as the age
@@ -458,20 +470,20 @@ Training and evaluation can now be done as follows:
 
 Plotting the distribution of the predicted values:
 
-#+begin_src python :results file ~/figures/figure2-5.png
+#+begin_src python :results file figures/figure2-05.png
   plt.clf()
   sns.histplot(y_pred, label='pred')
   sns.histplot(y_val, label='y', color="red")
   plt.legend()
 
-  plt.savefig('figures/figure2-5.png')
-  'figures/figure2-5.png'
+  plt.savefig('figures/figure2-05.png')
+  'figures/figure2-05.png'
 #+end_src
 
 #+RESULTS:
-[[file:figures/figure2-5.png]]
+[[file:figures/figure2-05.png]]
 
-**** Categorical features
+*** Categorical features
 
 Categorical features are features that take one of a limited set of values.
 These are often strings, but may be numerical, as the number of doors of a car
@@ -483,13 +495,6 @@ this in the =prepare_X= function:
 
 #+begin_src python :results silent
   def prepare_X(df):
-      """Prepare a data frame for ML.
-
-
-      :param df: data frame of features
-
-      :returns: feature matrix"""
-
       # Copy the data frame and the features.
       df = df.copy()
       features = base.copy()
@@ -527,13 +532,6 @@ occurring values:
 
 #+begin_src python :results silent
   def prepare_X(df):
-      """Prepare a data frame for ML.
-
-
-      :param df: data frame of features
-
-      :returns: feature matrix"""
-
       # Copy the data frame and the features.
       df = df.copy()
       features = base.copy()
@@ -580,13 +578,6 @@ Adding some more categorical features:
 
 #+begin_src python :results silent
   def prepare_X(df):
-      """Prepare a data frame for ML.
-
-
-      :param df: data frame of features
-
-      :returns: feature matrix"""
-
       # Copy the data frame and the features.
       df = df.copy()
       features = base.copy()
@@ -633,7 +624,7 @@ Adding some more categorical features:
           df[feature] = (df['vehicle_size'] == v).astype(int)
           features.append(feature)
 
-      for v in ['sedan', '4dr_suv', 'coupe', 'convertible', '4dr_hatchback']: 
+      for v in ['sedan', '4dr_suv', 'coupe', 'convertible', '4dr_hatchback']:
           feature = 'is_style_%s' % v
           df[feature] = (df['vehicle_style'] == v).astype(int)
           features.append(feature)
@@ -663,7 +654,7 @@ Checking out the effect:
 
 Adding these features makes the model much worse, not better.
 
-**** Regularization
+*** Regularization
 
 The reason for the deterioration is *numerical instability*. The bias is very
 large and so are some of the weights:
@@ -760,11 +751,11 @@ reduce the RMSE, but only marginally.
 The results suggest that the model works well.
 
 #+begin_remark
-Still, I'm not clear on whether the value of ≈0.46 is good or not. Does it mean
-the model predicts the price well or not?
+Still, I'm not clear on whether the value of approx. 0.46 is good or not. Does
+it mean the model predicts the price well or not?
 #+end_remark
 
-**** Using the model
+*** Using the model
 
 When using the model to make a prediction, one needs to create a data frame with
 one row. Take the following ad for a car:
@@ -810,6 +801,7 @@ To calculate the price, apply the exponent function:
 
 
 
+
 * COMMENT Local Variables
 :PROPERTIES:
 :VISIBILITY: folded
@@ -823,4 +815,3 @@ To calculate the price, apply the exponent function:
 # eval: (auto-revert-mode 1)
 # eval: (mixed-pitch-mode -1)
 # End:
-
