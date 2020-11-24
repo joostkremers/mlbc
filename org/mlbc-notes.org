@@ -529,9 +529,9 @@ this in the =prepare_X= function:
 #+begin_remark
 I'm not sure when a comparison can be turned into an integer...
 =True.astype(int)= returns an error, and so does =(1==0).astype(int)=, but for
-some reason, =(df['number_of_doors'][0] == 2).astype(int)= returns =1=.
+some reason, =(df['number_of_doors'][0]==2).astype(int)= returns =1=.
 
-Note that =(df['number_of_doors'] == v)= is an array operation: it returns a
+Note that =(df['number_of_doors']==v)= is an array operation: it returns a
 Pandas series of boolean values.
 #+end_remark
 
