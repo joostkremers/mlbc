@@ -156,6 +156,9 @@ a function for this purpose, =np.log1p=:
 This so-called "normal or Gaussian distribution" is more amenable to machine
 learning algorithms.
 
+Note that there are a lot of empty cells in the dataframe. These need to be
+dealt with (see below):
+
 #+begin_src python
   df.isnull().sum()
 #+end_src
