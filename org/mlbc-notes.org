@@ -1008,7 +1008,7 @@ Two functions for feature engineering:
 features:
 
 #+begin_src python
-  def binary_encode_features(df, features):
+  def binary_encodes(df, features):
       """Binary encode a list of features.
 
       Each feature is passed to `binary_encode`. See there for details. Note that

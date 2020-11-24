@@ -158,7 +158,7 @@ def encode_age(df, year_field, current_year):
 
     return ['age']
 
-def binary_encode_features(df, features):
+def binary_encodes(df, features):
     """Binary encode a list of features.
 
     Each feature is passed to `binary_encode`. See there for details. Note that
