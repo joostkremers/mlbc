@@ -3,7 +3,6 @@ import numbers
 import pandas as pd
 import numpy as np
 
-
 def read_data(file):
     """Read a dataframe from a CSV file.
 
@@ -33,7 +32,6 @@ def clean_alphanum_data(df):
     string_columns = list(df.dtypes[df.dtypes == 'object'].index)
     for col in string_columns:
         df[col] = df[col].str.lower().str.replace(' ', '_')
-
 
 def split_data_frame(df, split=0.2, seed=None):
     """Split a dataframe into a train, validation and test set.
@@ -68,6 +66,48 @@ def split_data_frame(df, split=0.2, seed=None):
 
     return df_train, df_val, df_test
 
+def prepare_X(df, base, fns=[]):
+    """Prepare a dataframe for learning.
+
+    Convert the dataframe to a Numpy array:
+
+    - Extract the features in `base`.
+
+    - Apply the functions in `fns` to the dataframe to derive new features from
+      existing ones (e.g., for binary encoding).
+
+      The elements of `fns` should be tuples `(fn, list_of_args)`. Before
+      calling each function, `df` is prepended to the list of arguments. The
+      functions should add the new features to `df`, and they should return a
+      list of the names of the new feature(s) as strings.
+
+    - Fill any missing data with 0.
+
+    Note that `df` is not modified. The functions in `fns` should modify their
+    dataframe argument, but they operate on a copy of `df`.
+
+    Parameters:
+    df (DataFrame): dataframe to convert.
+    base (list of strings): list of fields in the dataframe to be used for the array.
+    fns (list of tuples (function, arg list)): feature engineering functions.
+
+    Returns:
+    ndarray of the prepared data.
+
+    """
+    df = df.copy()
+    features = base.copy()
+
+    for fn, args in fns:
+        args = [df] + args
+        new_features = fn(*args) # Note: `fn` should also modify the local copy of `df`!
+        features += new_features
+
+    df_num = df[features]
+    df_num = df_num.fillna(0)
+    X = df_num.values
+
+    return X
 
 def binary_encode(df, feature, n=5):
     """Binary encode a categorical feature.
@@ -118,49 +158,26 @@ def encode_age(df, year_field, current_year):
 
     return ['age']
 
+def binary_encode_features(df, features):
+    """Binary encode a list of features.
 
-def prepare_X(df, base, fns=[]):
-    """Prepare a dataframe for learning.
-
-    Convert the dataframe to a Numpy array:
-
-    - Extract the features in `base`.
-
-    - Apply the functions in `fns` to the dataframe to derive new features from
-      existing ones (e.g., for binary encoding).
-
-      The elements of `fns` should be tuples `(fn, list_of_args)`. Before
-      calling each function, `df` is prepended to the list of arguments. The
-      functions should add the new features to `df`, and they should return a
-      list of the names of the new feature(s) as strings.
-
-    - Fill any missing data with 0.
-
-    Note that `df` is not modified.
+    Each feature is passed to `binary_encode`. See there for details. Note that
+    `df` is modified in place.
 
     Parameters:
-    df (DataFrame): dataframe to convert.
-    base (list of strings): list of fields in the dataframe to be used for the array.
-    fns (list of tuples (function, arg list)): feature engineering functions.
+    df (DataFrame): the dataframe to engineer features from.
+    features (list of strings): list of features to binary encode.
 
     Returns:
-    ndarray of the prepared data.
+    A list of features added to `df`.
 
     """
-    df = df.copy()
-    features = base.copy()
+    all_new_features = []
+    for feature in features:
+        new_features = binary_encode(df, feature)
+        all_new_features += new_features
 
-    for fn, args in fns:
-        args = [df] + args
-        new_features = fn(*args) # Note: this should also modify the local copy of `df`!
-        features += new_features
-
-    df_num = df[features]
-    df_num = df_num.fillna(0)
-    X = df_num.values
-
-    return X
-
+    return all_new_features
 
 def linear_regression(X, y, r=0.0):
     """Perform linear regression.
