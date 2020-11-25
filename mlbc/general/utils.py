@@ -76,7 +76,7 @@ def prepare_X(df, base, fns=[]):
     - Apply the functions in `fns` to the dataframe to derive new features from
       existing ones (e.g., for binary encoding).
 
-      The elements of `fns` should be tuples `(fn, list_of_args)`. Before
+      The elements of `fns` should be lists `(fn, arg, arg, arg, ...)`. Before
       calling each function, `df` is prepended to the list of arguments. The
       functions should add the new features to `df`, and they should return a
       list of the names of the new feature(s) as strings.
@@ -98,7 +98,7 @@ def prepare_X(df, base, fns=[]):
     df = df.copy()
     features = base.copy()
 
-    for fn, args in fns:
+    for fn, *args in fns:
         args = [df] + args
         new_features = fn(*args) # Note: `fn` should also modify the local copy of `df`!
         features += new_features
@@ -158,7 +158,7 @@ def encode_age(df, year_field, current_year):
 
     return ['age']
 
-def binary_encodes(df, features):
+def binary_encodes(df, features, n=5):
     """Binary encode a list of features.
 
     Each feature is passed to `binary_encode`. See there for details. Note that
@@ -167,6 +167,7 @@ def binary_encodes(df, features):
     Parameters:
     df (DataFrame): the dataframe to engineer features from.
     features (list of strings): list of features to binary encode.
+    n (int): number of values for feature to encode.
 
     Returns:
     A list of features added to `df`.
@@ -174,7 +175,7 @@ def binary_encodes(df, features):
     """
     all_new_features = []
     for feature in features:
-        new_features = binary_encode(df, feature)
+        new_features = binary_encode(df, feature, n)
         all_new_features += new_features
 
     return all_new_features
