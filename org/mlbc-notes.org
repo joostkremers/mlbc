@@ -1080,8 +1080,169 @@ The =linear_regression= and =rmse= functions. These weren't modified:
 #+end_src
 
 
-*** Code
+*** Car prices
 
+The goal is to see if more feature engineering improves the model. The RMSE of
+the model as developed in chapter 2 is 0.46. Can this be improved?
+
+Let us set up the model. First, read the data and clean it up:
+
+#+begin_src python
+  df = read_data('../data/cars.csv')
+  clean_alphanum_data(df)
+  df.head()
+#+end_src
+
+#+RESULTS:
+:   make       model  year             engine_fuel_type  engine_hp  engine_cylinders transmission_type  ...                        market_category  vehicle_size vehicle_style highway_mpg city_mpg  popularity   msrp
+: 0  bmw  1_series_m  2011  premium_unleaded_(required)      335.0               6.0            manual  ...  factory_tuner,luxury,high-performance       compact         coupe          26       19        3916  46135
+: 1  bmw    1_series  2011  premium_unleaded_(required)      300.0               6.0            manual  ...                     luxury,performance       compact   convertible          28       19        3916  40650
+: 2  bmw    1_series  2011  premium_unleaded_(required)      300.0               6.0            manual  ...                luxury,high-performance       compact         coupe          28       20        3916  36350
+: 3  bmw    1_series  2011  premium_unleaded_(required)      230.0               6.0            manual  ...                     luxury,performance       compact         coupe          28       18        3916  29450
+: 4  bmw    1_series  2011  premium_unleaded_(required)      230.0               6.0            manual  ...                                 luxury       compact   convertible          28       18        3916  34500
+:
+: [5 rows x 16 columns]
+
+Split the data set into a train, validation and test set:
+
+#+begin_src python :results silent
+  df_train, df_val, df_test = split_data_frame(df, split=0.2, seed=2)
+
+  y_train = np.log1p(df_train.msrp.values)
+  y_val = np.log1p(df_val.msrp.values)
+  y_test = np.log1p(df_test.msrp.values)
+#+end_src
+
+Remove the target value ("msrp" or "manufacturer's suggested retail price") from
+the data set:
+
+#+begin_src python :results silent
+  del df_train['msrp']
+  del df_val['msrp']
+  del df_test['msrp']
+#+end_src
+
+Prepare the data. To confirm the results in the book (and make sure my code is
+working), I'll first use the same parameters:
+
+#+begin_src python :results silent
+  # Prepare the training data.
+  base = ['engine_hp', 'engine_cylinders', 'highway_mpg', 'city_mpg', 'popularity']
+  fns = [[encode_age, 'year', 2017],
+         [binary_encodes, ["number_of_doors",
+                           "make",
+                           "engine_fuel_type",
+                           "transmission_type",
+                           "driven_wheels",
+                           "market_category",
+                           "vehicle_size",
+                           "vehicle_style"],
+          5]]
+  X_train = prepare_X(df_train, base, fns)
+
+#+end_src
+
+Now train the model:
+
+#+begin_src python :results silent
+  w_0, w = linear_regression(X_train, y_train, 0.01)
+#+end_src
+
+If we apply the model to the training data, we *should* get the original prices
+again. In reality, we don't.
+
+#+begin_src python :results silent
+  from matplotlib import pyplot as plt
+  import seaborn as sns
+#+end_src
+
+#+begin_src python :results file figure/figure2-06.png
+  y_pred = w_0 + X_train.dot(w)
+  plt.clf()
+  sns.histplot(y_pred, label='pred')
+  sns.histplot(y_train, label='y', color='red')
+  plt.legend()
+  plt.savefig('figures/figure2-06.png')
+  'figures/figure2-06.png'
+#+end_src
+
+#+RESULTS:
+[[file:figures/figure2-06.png]]
+
+We can compute the RMSE for the model:
+
+#+begin_src python
+  rmse(y_train, y_pred)
+#+end_src
+
+#+RESULTS:
+: 0.46020995201980425
+
+We should of course compute the RMSE on the validation set:
+
+#+begin_src python
+  X_val = prepare_X(df_val, base, fns)
+  y_pred = w_0 + X_val.dot(w)
+  rmse(y_val, y_pred)
+#+end_src
+
+#+RESULTS:
+: 0.476510145790575
+
+Let's follow the suggestion in exercise 2.5.1 and include more values in the
+binary encoded features:
+
+#+begin_src python :results file figures/figure2-07.png
+  fns = [[encode_age, 'year', 2017],
+         [binary_encodes, ["number_of_doors",
+                           "make",
+                             "engine_fuel_type",
+                           "transmission_type",
+                           "driven_wheels",
+                           "market_category",
+                           "vehicle_size",
+                           "vehicle_style"],
+          8]]
+
+  X_train = prepare_X(df_train, base, fns)
+
+  w_0, w = linear_regression(X_train, y_train, 0.01)
+
+  y_pred = w_0 + X_train.dot(w)
+
+  plt.clf()
+  sns.histplot(y_pred, label='pred')
+  sns.histplot(y_train, label='y', color='red')
+  plt.legend()
+  plt.savefig('figures/figure2-07.png')
+  'figures/figure2-07.png'
+#+end_src
+
+#+RESULTS:
+[[file:figures/figure2-07.png]]
+
+Evaluating against the validation set:
+
+#+begin_src python
+  X_val = prepare_X(df_val, base, fns)
+  y_pred = w_0 + X_val.dot(w)
+  rmse(y_val, y_pred)
+#+end_src
+
+#+RESULTS:
+: 0.4850113357947244
+
+The performance seems to have degraded, not improved, although only by a little.
+
+Note that trying to use 10 values for binary encoding fails, because the
+validation set then gains an extra feature. The error reported is:
+
+#+begin_example
+  ValueError: shapes (2382,61) and (60,) not aligned: 61 (dim 1) != 60 (dim 0)
+#+end_example
+
+I assume that in the validation set, one of the features has one value more than
+in the training set.
 
 
 * COMMENT Local Variables
