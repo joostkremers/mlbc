@@ -7,7 +7,9 @@
 #+HTML_HEAD: <script type="text/javascript" src="styles/lib/js/jquery.stickytableheaders.min.js"></script>
 #+HTML_HEAD: <script type="text/javascript" src="styles/readtheorg_theme/js/readtheorg.js"></script>
 
-* Setup
+* Introduction
+
+* Setup                                                            :noexport:
 
 Run the code in a virtual environment:
 
@@ -17,7 +19,7 @@ Run the code in a virtual environment:
 
 * Chapter 2: Predicting car prices
 
-** Notes to chapter 2
+** Notes to chapter 2                                             :noexport:
 :PROPERTIES:
 :header-args:python+: :session ch2
 :END:
