@@ -918,7 +918,7 @@ functions to extract additional features.
       - Apply the functions in `fns` to the dataframe to derive new features from
         existing ones (e.g., for binary encoding).
 
-        The elements of `fns` should be tuples `(fn, list_of_args)`. Before
+        The elements of `fns` should be lists `(fn, arg, arg, arg, ...)`. Before
         calling each function, `df` is prepended to the list of arguments. The
         functions should add the new features to `df`, and they should return a
         list of the names of the new feature(s) as strings.
@@ -940,7 +940,7 @@ functions to extract additional features.
       df = df.copy()
       features = base.copy()
 
-      for fn, args in fns:
+      for fn, *args in fns:
           args = [df] + args
           new_features = fn(*args) # Note: `fn` should also modify the local copy of `df`!
           features += new_features
