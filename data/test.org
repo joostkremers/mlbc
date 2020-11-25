@@ -1,0 +1,30 @@
+#+name: table
+| Make          | Year | Engine HP | Transmission Type | Number of Doors | Vehicle Size | city mpg | Popularity |  MSRP |
+| BMW           | 2013 |       320 | MANUAL            |               2 | Compact      |       20 |       3916 | 43550 |
+| Audi          | 1994 |       172 | AUTOMATIC         |               4 | Midsize      |       16 |       3105 |  2000 |
+| FIAT          | 2017 |       160 | MANUAL            |               2 | Compact      |       26 |        819 | 28195 |
+| Chrysler      | 2015 |       184 | AUTOMATIC         |               4 | Midsize      |       23 |       1013 | 25170 |
+| Nissan        | 1998 |       155 | MANUAL            |               2 | Compact      |       20 |       2009 |  4107 |
+| Volvo         | 1991 |       114 | MANUAL            |               4 | Midsize      |       19 |        870 |  2000 |
+| Mazda         | 2012 |       100 | MANUAL            |               4 | Compact      |       29 |        586 | 16020 |
+| Mercedes-Benz | 1991 |       177 | AUTOMATIC         |               4 | Large        |       15 |        617 |  2232 |
+| Mitsubishi    | 1997 |       218 | MANUAL            |               2 | Compact      |       17 |        436 |  3941 |
+
+#+name: csv
+#+BEGIN_SRC elisp :var x=table :wrap example
+(orgtbl-to-csv x nil)
+#+END_SRC
+
+#+RESULTS: csv
+#+begin_example
+Make,Year,Engine HP,Transmission Type,Number of Doors,Vehicle Size,city mpg,Popularity,MSRP
+BMW,2013,320,MANUAL,2,Compact,20,3916,43550
+Audi,1994,172,AUTOMATIC,4,Midsize,16,3105,2000
+FIAT,2017,160,MANUAL,2,Compact,26,819,28195
+Chrysler,2015,184,AUTOMATIC,4,Midsize,23,1013,25170
+Nissan,1998,155,MANUAL,2,Compact,20,2009,4107
+Volvo,1991,114,MANUAL,4,Midsize,19,870,2000
+Mazda,2012,100,MANUAL,4,Compact,29,586,16020
+Mercedes-Benz,1991,177,AUTOMATIC,4,Large,15,617,2232
+Mitsubishi,1997,218,MANUAL,2,Compact,17,436,3941
+#+end_example
