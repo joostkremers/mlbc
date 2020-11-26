@@ -1247,6 +1247,65 @@ validation set then gains an extra feature. The error reported is:
 I assume that in the validation set, one of the features has one value more than
 in the training set.
 
+**** Differentiating more                                       :noexport:
+
+Among the binary encoded features, some have only a few values, others have a
+larger number. Cutting them all off at the same point may not be a good idea.
+
+These are the available features, their types and their value counts:
+
+#+begin_src python
+  features = []
+  for column in df.columns:
+      feature = [column, df[column].dtype.name, len(df[column].value_counts())]
+      print(feature)
+      features.append(feature)
+
+  features
+#+end_src
+
+#+RESULTS:
+| make              | object  |   48 |
+| model             | object  |  914 |
+| year              | int64   |   28 |
+| engine_fuel_type  | object  |   10 |
+| engine_hp         | float64 |  356 |
+| engine_cylinders  | float64 |    9 |
+| transmission_type | object  |    5 |
+| driven_wheels     | object  |    4 |
+| number_of_doors   | float64 |    3 |
+| market_category   | object  |   71 |
+| vehicle_size      | object  |    3 |
+| vehicle_style     | object  |   16 |
+| highway_mpg       | int64   |   59 |
+| city_mpg          | int64   |   69 |
+| popularity        | int64   |   48 |
+| msrp              | int64   | 6049 |
+
+Let's check which ones were used in the model above:
+
+| feature           | type    | n values | used |
+|-------------------+---------+----------+------|
+| make              | object  |       48 | *    |
+| model             | object  |      914 |      |
+| year              | int64   |       28 |      |
+| engine_fuel_type  | object  |       10 | *    |
+| engine_hp         | float64 |      356 | *    |
+| engine_cylinders  | float64 |        9 | *    |
+| transmission_type | object  |        5 | *    |
+| driven_wheels     | object  |        4 | *    |
+| number_of_doors   | float64 |        3 | *    |
+| market_category   | object  |       71 | *    |
+| vehicle_size      | object  |        3 | *    |
+| vehicle_style     | object  |       16 | *    |
+| highway_mpg       | int64   |       59 | *    |
+| city_mpg          | int64   |       69 | *    |
+| popularity        | int64   |       48 | *    |
+| msrp              | int64   |     6049 |      |
+
+Not sure if any of these could be engineered better. Let's get on with the next
+exercise.
+
 
 * COMMENT Local Variables
 :PROPERTIES:
