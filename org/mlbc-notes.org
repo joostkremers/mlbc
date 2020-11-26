@@ -820,7 +820,7 @@ To calculate the price, apply the exponent function:
 :header-args:python+: :tangle ../mlbc/general/utils.py :results silent
 :END:
 
-Convert the code from chapter 2 to a set of functions:
+Convert the code from chapter 2 to a set of utility functions:
 
 #+begin_src python
   import numbers
@@ -1189,10 +1189,13 @@ We should of course compute the RMSE on the validation set:
 #+RESULTS:
 : 0.476510145790575
 
+**** Using more values
+
 Let's follow the suggestion in exercise 2.5.1 and include more values in the
 binary encoded features:
 
 #+begin_src python :results file figures/figure2-07.png
+  base = ['engine_hp', 'engine_cylinders', 'highway_mpg', 'city_mpg', 'popularity']
   fns = [[encode_age, 'year', 2017],
          [binary_encodes, ["number_of_doors",
                            "make",
@@ -1230,7 +1233,7 @@ Evaluating against the validation set:
 #+end_src
 
 #+RESULTS:
-: 0.4850113357947244
+: 0.4850113356908553
 
 The performance seems to have degraded, not improved, although only by a little.
 
