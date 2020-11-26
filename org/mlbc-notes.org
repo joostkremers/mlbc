@@ -1306,6 +1306,9 @@ Let's check which ones were used in the model above:
 Not sure if any of these could be engineered better. Let's get on with the next
 exercise.
 
+*** House prices
+
+
 
 * COMMENT Local Variables
 :PROPERTIES:
