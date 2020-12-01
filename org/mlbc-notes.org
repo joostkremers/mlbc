@@ -1,4 +1,4 @@
-#+TITLE: Notes on "Deep Learning Bookcamp"
+#+TITLE: Notes on "Machine Learning Bookcamp"
 #+PROPERTY: header-args:python :exports both :eval never-export
 #+HTML_HEAD: <link rel="stylesheet" type="text/css" href="styles/readtheorg_theme/css/htmlize.css"/>
 #+HTML_HEAD: <link rel="stylesheet" type="text/css" href="styles/readtheorg_theme/css/readtheorg.css"/>
