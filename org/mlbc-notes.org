@@ -1370,6 +1370,31 @@ The target value is the MEDV. All values except CHAS are numeric, CHAS is
 already binary, as it only contains the values 0 and 1. No preprocessing seems
 to be necessary.
 
+There are no missing values in the data set:
+
+#+begin_src python
+  df.isnull().sum()
+#+end_src
+
+#+RESULTS:
+#+begin_example
+crim       0
+zn         0
+indus      0
+chas       0
+nox        0
+rm         0
+age        0
+dis        0
+rad        0
+tax        0
+ptratio    0
+b          0
+lstat      0
+medv       0
+dtype: int64
+#+end_example
+
 Let's first plot the data:
 
 #+begin_src python :results silent
