@@ -21,7 +21,7 @@ Run the code in a virtual environment:
 
 ** Notes to chapter 2                                             :noexport:
 :PROPERTIES:
-:header-args:python+: :session ch2
+:header-args:python+: :session ch2-notes
 :END:
 
 *** Imports
