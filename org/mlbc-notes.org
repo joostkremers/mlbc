@@ -1541,6 +1541,127 @@ At first sight, not much better than without log transformation. But let's see:
 
 That's a much better result, it seems.
 
+
+* Chapter 3: Machine Learning for Classification
+
+** Notes to chapter 3                                             :noexport:
+:PROPERTIES:
+:header-args:python+: :session ch3-notes
+:END:
+
+*** Imports
+
+#+begin_src python :results silent
+  import numpy as np
+  import pandas as pd
+
+  import seaborn as sns
+  from matplotlib import pyplot as plt
+#+end_src
+
+*** Initial look at the data
+
+#+begin_src python
+  df = pd.read_csv('../data/telco-customer-churn.csv')
+  df.head()
+#+end_src
+
+#+RESULTS:
+:    customerID  gender  SeniorCitizen Partner Dependents  tenure PhoneService     MultipleLines  ... StreamingTV StreamingMovies        Contract PaperlessBilling              PaymentMethod MonthlyCharges TotalCharges Churn
+: 0  7590-VHVEG  Female              0     Yes         No       1           No  No phone service  ...          No              No  Month-to-month              Yes           Electronic check          29.85        29.85    No
+: 1  5575-GNVDE    Male              0      No         No      34          Yes                No  ...          No              No        One year               No               Mailed check          56.95       1889.5    No
+: 2  3668-QPYBK    Male              0      No         No       2          Yes                No  ...          No              No  Month-to-month              Yes               Mailed check          53.85       108.15   Yes
+: 3  7795-CFOCW    Male              0      No         No      45           No  No phone service  ...          No              No        One year               No  Bank transfer (automatic)          42.30      1840.75    No
+: 4  9237-HQITU  Female              0      No         No       2          Yes                No  ...          No              No  Month-to-month              Yes           Electronic check          70.70       151.65   Yes
+:
+: [5 rows x 21 columns]
+
+#+begin_src python
+  df.head().T
+#+end_src
+
+#+RESULTS:
+#+begin_example
+                                 0             1               2                          3                 4
+customerID              7590-VHVEG    5575-GNVDE      3668-QPYBK                 7795-CFOCW        9237-HQITU
+gender                      Female          Male            Male                       Male            Female
+SeniorCitizen                    0             0               0                          0                 0
+Partner                        Yes            No              No                         No                No
+Dependents                      No            No              No                         No                No
+tenure                           1            34               2                         45                 2
+PhoneService                    No           Yes             Yes                         No               Yes
+MultipleLines     No phone service            No              No           No phone service                No
+InternetService                DSL           DSL             DSL                        DSL       Fiber optic
+OnlineSecurity                  No           Yes             Yes                        Yes                No
+OnlineBackup                   Yes            No             Yes                         No                No
+DeviceProtection                No           Yes              No                        Yes                No
+TechSupport                     No            No              No                        Yes                No
+StreamingTV                     No            No              No                         No                No
+StreamingMovies                 No            No              No                         No                No
+Contract            Month-to-month      One year  Month-to-month                   One year    Month-to-month
+PaperlessBilling               Yes            No             Yes                         No               Yes
+PaymentMethod     Electronic check  Mailed check    Mailed check  Bank transfer (automatic)  Electronic check
+MonthlyCharges               29.85         56.95           53.85                       42.3              70.7
+TotalCharges                 29.85        1889.5          108.15                    1840.75            151.65
+Churn                           No            No             Yes                         No               Yes
+#+end_example
+
+#+begin_src python
+  df.dtypes
+#+end_src
+
+#+RESULTS:
+#+begin_example
+customerID           object
+gender               object
+SeniorCitizen         int64
+Partner              object
+Dependents           object
+tenure                int64
+PhoneService         object
+MultipleLines        object
+InternetService      object
+OnlineSecurity       object
+OnlineBackup         object
+DeviceProtection     object
+TechSupport          object
+StreamingTV          object
+StreamingMovies      object
+Contract             object
+PaperlessBilling     object
+PaymentMethod        object
+MonthlyCharges      float64
+TotalCharges         object
+Churn                object
+dtype: object
+#+end_example
+
+Note that 'TotalCharges' is an object, even though we'd expect it to be a
+number. There are probably non-numeric characters in this field:
+
+#+begin_src python
+  total_charges = pd.to_numeric(df['TotalCharges'], errors='coerce')  # Convert to number, do not fail on errors.
+  df[total_charges.isnull()][['customerID', 'TotalCharges']]          # List those where TotalCharges is empty.
+#+end_src
+
+#+RESULTS:
+#+begin_example
+      customerID TotalCharges
+488   4472-LVYGI
+753   3115-CZMZD
+936   5709-LVOEQ
+1082  4367-NUYAO
+1340  1371-DWPAZ
+3331  7644-OMVMY
+3826  3213-VVOLG
+4380  2520-SGTTA
+5218  2923-ARZLG
+6670  4075-WKNIU
+6754  2775-SEFEE
+#+end_example
+
+This shows that there are some entries where "TotalCharges" contains whitespace.
+
 * COMMENT Local Variables
 :PROPERTIES:
 :VISIBILITY: folded
