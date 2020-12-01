@@ -1565,8 +1565,11 @@ That's a much better result, it seems.
 
 *** Initial look at the data
 
-#+begin_src python
+#+begin_src python :results silent
   df = pd.read_csv('../data/telco-customer-churn.csv')
+#+end_src
+
+#+begin_src python
   df.head()
 #+end_src
 
@@ -1579,6 +1582,8 @@ That's a much better result, it seems.
 : 4  9237-HQITU  Female              0      No         No       2          Yes                No  ...          No              No  Month-to-month              Yes           Electronic check          70.70       151.65   Yes
 :
 : [5 rows x 21 columns]
+
+Transposing the table gives a better view:
 
 #+begin_src python
   df.head().T
@@ -1640,7 +1645,7 @@ Churn                object
 dtype: object
 #+end_example
 
-Note that 'TotalCharges' is an object, even though we'd expect it to be a
+Note that 'TotalCharges' is of type 'object', even though we'd expect it to be a
 number. There are probably non-numeric characters in this field:
 
 #+begin_src python
@@ -1665,6 +1670,64 @@ number. There are probably non-numeric characters in this field:
 #+end_example
 
 This shows that there are some entries where "TotalCharges" contains whitespace.
+
+#+begin_remark
+This is interesting. =df[total_charges.isnull()]= produces a dataframe of those
+elements in =df= where =total_charges.isnull()= is =True=. =total_charges=
+itself obviously has to be a dataframe of the same number of rows as =df=. Note:
+=total_charges.isnull()= produces a dataframe of one column.
+#+end_remark
+
+We simply set the missing values to 0.
+
+#+begin_remark
+Presumably, that is exactly what's intended here, since 'tenure' is 0 in all of them:
+#+end_remark
+
+#+begin_src python
+  df[df.tenure == 0]
+#+end_src
+
+#+RESULTS:
+#+begin_example
+      customerID  gender  SeniorCitizen Partner Dependents  tenure PhoneService     MultipleLines  ...          StreamingTV      StreamingMovies  Contract PaperlessBilling              PaymentMethod MonthlyCharges TotalCharges Churn
+488   4472-LVYGI  Female              0     Yes        Yes       0           No  No phone service  ...                  Yes                   No  Two year              Yes  Bank transfer (automatic)          52.55                 No
+753   3115-CZMZD    Male              0      No        Yes       0          Yes                No  ...  No internet service  No internet service  Two year               No               Mailed check          20.25                 No
+936   5709-LVOEQ  Female              0     Yes        Yes       0          Yes                No  ...                  Yes                  Yes  Two year               No               Mailed check          80.85                 No
+1082  4367-NUYAO    Male              0     Yes        Yes       0          Yes               Yes  ...  No internet service  No internet service  Two year               No               Mailed check          25.75                 No
+1340  1371-DWPAZ  Female              0     Yes        Yes       0           No  No phone service  ...                  Yes                   No  Two year               No    Credit card (automatic)          56.05                 No
+3331  7644-OMVMY    Male              0     Yes        Yes       0          Yes                No  ...  No internet service  No internet service  Two year               No               Mailed check          19.85                 No
+3826  3213-VVOLG    Male              0     Yes        Yes       0          Yes               Yes  ...  No internet service  No internet service  Two year               No               Mailed check          25.35                 No
+4380  2520-SGTTA  Female              0     Yes        Yes       0          Yes                No  ...  No internet service  No internet service  Two year               No               Mailed check          20.00                 No
+5218  2923-ARZLG    Male              0     Yes        Yes       0          Yes                No  ...  No internet service  No internet service  One year              Yes               Mailed check          19.70                 No
+6670  4075-WKNIU  Female              0     Yes        Yes       0          Yes               Yes  ...                  Yes                   No  Two year               No               Mailed check          73.35                 No
+6754  2775-SEFEE    Male              0      No        Yes       0          Yes               Yes  ...                   No                   No  Two year              Yes  Bank transfer (automatic)          61.90                 No
+
+[11 rows x 21 columns]
+#+end_example
+
+#+begin_remark
+Those are the same customers as above.
+#+end_remark
+
+#+begin_src python :results silent
+  df.TotalCharges = pd.to_numeric(df.TotalCharges, errors='coerce')
+  df.TotalCharges = df.TotalCharges.fillna(0)
+#+end_src
+
+We clean up the column names and alphanumeric data as before:
+
+#+begin_src python :results silent
+  utils.clean_alphanum_data(df)
+#+end_src
+
+The 'churn' column has 'yes/no' as its value, but this should be 1/0:
+
+#+begin_src python :results silent
+  df.churn = (df.churn == 'yes').astype(int)
+#+end_src
+
+
 
 * COMMENT Local Variables
 :PROPERTIES:
