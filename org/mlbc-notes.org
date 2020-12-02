@@ -1718,7 +1718,7 @@ Those are the same customers as above.
 We clean up the column names and alphanumeric data as before:
 
 #+begin_src python :results silent
-  utils.clean_alphanum_data(df)
+  clean_alphanum_data(df)
 #+end_src
 
 The 'churn' column has 'yes/no' as its value, but this should be 1/0:
