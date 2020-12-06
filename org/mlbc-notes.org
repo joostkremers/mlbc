@@ -2560,6 +2560,200 @@ This customer's probability of churning is high.
 :header-args:python+: :session ch3-ex1
 :END:
 
+**** Initial look at the data
+
+The data contains the following fields:
+
+| Variables                                        | Description                                                                                                                        |
+|--------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------|
+| Prospect ID                                      | A unique ID with which the customer is identified.                                                                                 |
+| Lead Number                                      | A lead number assigned to each lead procured.                                                                                      |
+| Lead Origin                                      | The origin identifier with which the customer was identified to be a lead. Includes API, Landing Page Submission, etc.             |
+| Lead Source                                      | The source of the lead. Includes Google, Organic Search, Olark Chat, etc.                                                          |
+| Do Not Email                                     | An indicator variable selected by the customer wherein they select whether of not they want to be emailed about the course or not. |
+| Do Not Call                                      | An indicator variable selected by the customer wherein they select whether of not they want to be called about the course or not.  |
+| Converted                                        | The target variable. Indicates whether a lead has been successfully converted or not.                                              |
+| TotalVisits                                      | The total number of visits made by the customer on the website.                                                                    |
+| Total Time Spent on Website                      | The total time spent by the customer on the website.                                                                               |
+| Page Views Per Visit                             | Average number of pages on the website viewed during the visits.                                                                   |
+| Last Activity                                    | Last activity performed by the customer. Includes Email Opened, Olark Chat Conversation, etc.                                      |
+| Country                                          | The country of the customer.                                                                                                       |
+| Specialization                                   | The industry domain in which the customer worked before.                                                                           |
+| How did you hear about X Education               | The source from which the customer heard about X Education.                                                                        |
+| What is your current occupation                  | Indicates whether the customer is a student, umemployed or employed.                                                               |
+| What matters most to you in choosing this course | An option selected by the customer indicating what is their main motto behind doing this course.                                   |
+| Search                                           | Indicating whether the customer had seen the ad in any of the listed items.                                                        |
+| Magazine                                         |                                                                                                                                    |
+| Newspaper Article                                |                                                                                                                                    |
+| X Education Forums                               |                                                                                                                                    |
+| Newspaper                                        |                                                                                                                                    |
+| Digital Advertisement                            |                                                                                                                                    |
+| Through Recommendations                          | Indicates whether the customer came in through recommendations.                                                                    |
+| Receive More Updates About Our Courses           | Indicates whether the customer chose to receive more updates about the courses.                                                    |
+| Tags                                             | Tags assigned to customers indicating the current status of the lead.                                                              |
+| Lead Quality                                     | Indicates the quality of lead based on the data and intuition the the employee who has been assigned to the lead.                  |
+| Update me on Supply Chain Content                | Indicates whether the customer wants updates on the Supply Chain Content.                                                          |
+| Get updates on DM Content                        | Indicates whether the customer wants updates on the DM Content.                                                                    |
+| Lead Profile                                     | A lead level assigned to each customer based on their profile.                                                                     |
+| City                                             | The city of the customer.                                                                                                          |
+| Asymmetrique Activity Index                      | An index and score assigned to each customer based on their activity and their profile                                             |
+| Asymmetrique Profile Index                       |                                                                                                                                    |
+| Asymmetrique Activity Score                      |                                                                                                                                    |
+| Asymmetrique Profile Score                       |                                                                                                                                    |
+| I agree to pay the amount through cheque         | Indicates whether the customer has agreed to pay the amount through cheque or not.                                                 |
+| a free copy of Mastering The Interview           | Indicates whether the customer wants a free copy of 'Mastering the Interview' or not.                                              |
+| Last Notable Activity                            | The last notable acitivity performed by the student.                                                                               |
+
+Note: The field "Specialization" includes the level 'Select Specialization'
+which means the customer had not selected this option while filling the form.
+
+
+#+begin_src python :results silent
+  from mlutils import *
+
+  import numpy as np
+  import pandas as pd
+#+end_src
+
+#+begin_src python :results silent
+  df = pd.read_csv('../data/Leads.csv')
+#+end_src
+
+#+begin_src python
+  df.head(4).T
+#+end_src
+
+#+RESULTS:
+#+begin_example
+                                                                                  0                                     1                                     2                                     3
+Prospect ID                                    7927b2df-8bba-4d29-b9a2-b6e0beafe620  2a272436-5132-4136-86fa-dcc88c88f482  8cc8c611-a219-4f35-ad23-fdfd2656bd8a  0cc2df48-7cf4-4e39-9de9-19797f9b38cc
+Lead Number                                                                  660737                                660728                                660727                                660719
+Lead Origin                                                                     API                                   API               Landing Page Submission               Landing Page Submission
+Lead Source                                                              Olark Chat                        Organic Search                        Direct Traffic                        Direct Traffic
+Do Not Email                                                                     No                                    No                                    No                                    No
+Do Not Call                                                                      No                                    No                                    No                                    No
+Converted                                                                         0                                     0                                     1                                     0
+TotalVisits                                                                       0                                     5                                     2                                     1
+Total Time Spent on Website                                                       0                                   674                                  1532                                   305
+Page Views Per Visit                                                              0                                   2.5                                     2                                     1
+Last Activity                                               Page Visited on Website                          Email Opened                          Email Opened                           Unreachable
+Country                                                                         NaN                                 India                                 India                                 India
+Specialization                                                               Select                                Select               Business Administration                 Media and Advertising
+How did you hear about X Education                                           Select                                Select                                Select                         Word Of Mouth
+What is your current occupation                                          Unemployed                            Unemployed                               Student                            Unemployed
+What matters most to you in choosing a course               Better Career Prospects               Better Career Prospects               Better Career Prospects               Better Career Prospects
+Search                                                                           No                                    No                                    No                                    No
+Magazine                                                                         No                                    No                                    No                                    No
+Newspaper Article                                                                No                                    No                                    No                                    No
+X Education Forums                                                               No                                    No                                    No                                    No
+Newspaper                                                                        No                                    No                                    No                                    No
+Digital Advertisement                                                            No                                    No                                    No                                    No
+Through Recommendations                                                          No                                    No                                    No                                    No
+Receive More Updates About Our Courses                                           No                                    No                                    No                                    No
+Tags                                                    Interested in other courses                               Ringing   Will revert after reading the email                               Ringing
+Lead Quality                                                       Low in Relevance                                   NaN                              Might be                              Not Sure
+Update me on Supply Chain Content                                                No                                    No                                    No                                    No
+Get updates on DM Content                                                        No                                    No                                    No                                    No
+Lead Profile                                                                 Select                                Select                        Potential Lead                                Select
+City                                                                         Select                                Select                                Mumbai                                Mumbai
+Asymmetrique Activity Index                                               02.Medium                             02.Medium                             02.Medium                             02.Medium
+Asymmetrique Profile Index                                                02.Medium                             02.Medium                               01.High                               01.High
+Asymmetrique Activity Score                                                      15                                    15                                    14                                    13
+Asymmetrique Profile Score                                                       15                                    15                                    20                                    17
+I agree to pay the amount through cheque                                         No                                    No                                    No                                    No
+A free copy of Mastering The Interview                                           No                                    No                                   Yes                                    No
+Last Notable Activity                                                      Modified                          Email Opened                          Email Opened                              Modified
+#+end_example
+
+Normalise alphanumeric data:
+
+#+begin_src python :results silent
+  clean_alphanum_data(df)
+#+end_src
+
+The types of the variables:
+
+#+begin_src python
+  df.dtypes
+#+end_src
+
+#+RESULTS:
+#+begin_example
+prospect_id                                       object
+lead_number                                        int64
+lead_origin                                       object
+lead_source                                       object
+do_not_email                                      object
+do_not_call                                       object
+converted                                          int64
+totalvisits                                      float64
+total_time_spent_on_website                        int64
+page_views_per_visit                             float64
+last_activity                                     object
+country                                           object
+specialization                                    object
+how_did_you_hear_about_x_education                object
+what_is_your_current_occupation                   object
+what_matters_most_to_you_in_choosing_a_course     object
+search                                            object
+magazine                                          object
+newspaper_article                                 object
+x_education_forums                                object
+newspaper                                         object
+digital_advertisement                             object
+through_recommendations                           object
+receive_more_updates_about_our_courses            object
+tags                                              object
+lead_quality                                      object
+update_me_on_supply_chain_content                 object
+get_updates_on_dm_content                         object
+lead_profile                                      object
+city                                              object
+asymmetrique_activity_index                       object
+asymmetrique_profile_index                        object
+asymmetrique_activity_score                      float64
+asymmetrique_profile_score                       float64
+i_agree_to_pay_the_amount_through_cheque          object
+a_free_copy_of_mastering_the_interview            object
+last_notable_activity                             object
+dtype: object
+#+end_example
+
+The target variable is 'Converted', which is numerical. Let's see if it's
+binary:
+
+#+begin_src python
+  df.converted.value_counts()
+#+end_src
+
+#+RESULTS:
+: 0    5679
+: 1    3561
+: Name: converted, dtype: int64
+
+The dataset is imbalanced:
+
+#+begin_src python
+  global_mean = df.converted.mean()
+  round(global_mean, 3)
+#+end_src
+
+#+RESULTS:
+: 0.385
+
+#+begin_src python :results silent
+  from sklearn.model_selection import train_test_split
+
+  df_train_full, df_test = train_test_split(df, test_size=0.2, random_state=1)
+  df_train, df_val = train_test_split(df_train_full, test_size=0.2, random_state=11)
+
+  y_train = df_train.converted.values
+  y_val = df_val.converted.values
+
+  del df_train['converted']
+  del df_val['converted']
+#+end_src
+
 *** Default prediction
 :PROPERTIES:
 :header-args:python+: :session ch3-ex2
