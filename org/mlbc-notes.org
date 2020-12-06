@@ -9,6 +9,7 @@
 
 * Introduction
 
+
 * Setup                                                            :noexport:
 
 Run the code in a virtual environment:
@@ -16,6 +17,7 @@ Run the code in a virtual environment:
 #+begin_src emacs-lisp :results silent
   (pyvenv-workon "mlbc-JThvy3A1-py3.8")
 #+end_src
+
 
 * Chapter 2: Machine Learning for Regression
 
@@ -808,6 +810,7 @@ To calculate the price, apply the exponent function:
 
 #+RESULTS:
 : suggested price: $28294
+
 
 ** Utility functions
 :PROPERTIES:
