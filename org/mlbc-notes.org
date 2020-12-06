@@ -1730,6 +1730,829 @@ The 'churn' column has 'yes/no' as its value, but this should be 1/0:
   df.churn = (df.churn == 'yes').astype(int)
 #+end_src
 
+Instead of our own function, we use Scikit-Learn for splitting the data:
+
+#+begin_src python :results silent
+  from sklearn.model_selection import train_test_split
+#+end_src
+
+=train_test_split= only splits a dataframe into two dataframes, so in order to
+get a train, test and validation set, we need to call it twice:
+
+#+begin_src python :results silent
+  df_train_full, df_test = train_test_split(df, test_size=0.2, random_state=1)
+  df_train, df_val = train_test_split(df_train_full, test_size=0.2, random_state=11)
+
+  y_train = df_train.churn.values
+  y_val = df_val.churn.values
+
+  del df_train['churn']
+  del df_val['churn']
+#+end_src
+
+*** Exploratory data analysis
+
+There are no missing values in the dataset:
+
+#+begin_src python
+  df_train_full.isnull().sum()
+#+end_src
+
+#+RESULTS:
+#+begin_example
+customerid          0
+gender              0
+seniorcitizen       0
+partner             0
+dependents          0
+tenure              0
+phoneservice        0
+multiplelines       0
+internetservice     0
+onlinesecurity      0
+onlinebackup        0
+deviceprotection    0
+techsupport         0
+streamingtv         0
+streamingmovies     0
+contract            0
+paperlessbilling    0
+paymentmethod       0
+monthlycharges      0
+totalcharges        0
+churn               0
+dtype: int64
+#+end_example
+
+We should also check the distribution of values:
+
+#+begin_src python
+  df_train_full.churn.value_counts()
+#+end_src
+
+#+RESULTS:
+: 0    4113
+: 1    1521
+: Name: churn, dtype: int64
+
+We can calculate the churn rate:
+
+\[
+\mathtt{churn\_rate} = \frac{\mathtt{number\_churned}}{\mathtt{number\_not\_churned}}
+\]
+
+Or by using the =mean()= method, given that 'churn' has the value 1 for
+customers that churned and 0 for customers that did not churn:
+
+#+begin_src python
+  global_mean = df_train_full.churn.mean()
+  round(global_mean, 3)
+#+end_src
+
+#+RESULTS:
+: 0.27
+
+The dataset is *imbalanced*, because the proportion of churned vs. non-churned
+is not 50/50.
+
+We separate the categorical and numerical variables:
+
+ #+begin_src python :results silent
+   categorical = ['gender', 'seniorcitizen', 'partner', 'dependents',
+                  'phoneservice', 'multiplelines', 'internetservice',
+                  'onlinesecurity', 'onlinebackup', 'deviceprotection',
+                  'techsupport', 'streamingtv', 'streamingmovies',
+                  'contract', 'paperlessbilling', 'paymentmethod']
+   numerical = ['tenure', 'monthlycharges', 'totalcharges']
+ #+end_src
+
+The categorical features should only have a few values:
+
+#+begin_src python
+  df_train_full[categorical].nunique()
+#+end_src
+
+#+RESULTS:
+#+begin_example
+gender              2
+seniorcitizen       2
+partner             2
+dependents          2
+phoneservice        2
+multiplelines       3
+internetservice     3
+onlinesecurity      3
+onlinebackup        3
+deviceprotection    3
+techsupport         3
+streamingtv         3
+streamingmovies     3
+contract            3
+paperlessbilling    2
+paymentmethod       4
+dtype: int64
+#+end_example
+
+The data is apparently clean, no preprocessing needs to be done.
+
+*** Feature importance
+
+*Feature importance analysis* is the process of finding out which features have
+a greater influence on the target value. Numerical and categorical features
+require different methods of analysis.
+
+**** Churn rate
+
+For categorical variables, we can check the churn rate for each variable. If it
+is similar to the global churn rate, the variable is not important for the churn
+rate. If the difference is larger, there is something about this variable that
+sets it apart from other variables.
+
+Take the 'gender' feature as an example:
+
+#+begin_src python :results output
+  female_mean = df_train_full[df_train_full.gender == 'female'].churn.mean()
+  male_mean = df_train_full[df_train_full.gender == 'male'].churn.mean()
+
+  print('gender == female:', round(female_mean, 3))
+  print('gender == male:  ', round(male_mean, 3))
+#+end_src
+
+#+RESULTS:
+: gender == female: 0.277
+: gender == male:   0.263
+
+The values for 'partner' are different:
+
+#+begin_src python :results output
+  partner_yes = df_train_full[df_train_full.partner == 'yes'].churn.mean()
+  partner_no = df_train_full[df_train_full.partner == 'no'].churn.mean()
+
+  print('partner == yes:', round(partner_yes, 3))
+  print('partner == no:  ', round(partner_no, 3))
+#+end_src
+
+#+RESULTS:
+: partner == yes: 0.205
+: partner == no:   0.33
+
+In this case, the difference with the global churn rate is larger, so the
+variable 'partner' is useful for predicting churn.
+
+**** Risk ratio
+
+The *risk ratio* is the ratio of the group churn rate and the global churn rate:
+
+\[
+\mathtt{risk} = \frac{\mathtt{group\_churn}}{\mathtt{global\_churn}}
+\]
+
+For gender, the risk ratio is close to 1:
+
+#+begin_src python :results output
+  print('female risk: ', female_mean / global_mean)
+  print('male risk  : ', male_mean / global_mean)
+#+end_src
+
+#+RESULTS:
+: female risk:  1.0253955354648652
+: male risk  :  0.9749802969838747
+
+The risk ratio is a number between 0 and ∞. If it is close to 1, the risk of
+churning in the group is similar to the risk of churning in the population as a
+whole. If the risk ratio is lower than 1, the group's risk is lower than the
+risk of the total population, and if the value is higher than 1, the group's
+risk is higher than the risk of the total population.
+
+#+begin_src python :results output
+  print('with partner risk   : ', partner_yes / global_mean)
+  print('without partner risk: ', partner_no / global_mean)
+#+end_src
+
+#+RESULTS:
+: with partner risk   :  0.7594724924338315
+: without partner risk:  1.2216593879412643
+
+To do this calculation for all categorical variables, we need some code that
+calculates the churn rate for all values of a variable:
+
+#+begin_src python
+  df_group = df_train_full.groupby(by='gender').churn.agg(['mean'])
+  df_group['diff'] = df_group['mean'] - global_mean
+  df_group['risk'] = df_group['mean'] / global_mean
+  df_group
+#+end_src
+
+#+RESULTS:
+:             mean      diff      risk
+: gender
+: female  0.276824  0.006856  1.025396
+: male    0.263214 -0.006755  0.974980
+
+#+begin_remark
+This is some interesting code. The =groupby= method creates a =GroupBy= object,
+in which the different values of the relevant variable are grouped, allowing
+aggregate functions to be applied to them. Aggregate functions are functions
+that apply over all of the elements in the group, such as =mean=, =min=, =max=,
+etc. The function to apply can be supplied as a string, as done here.
+#+end_remark
+
+We can do this for all categorical features:
+
+#+begin_src python :results output
+  for col in categorical:
+      df_group = df_train_full.groupby(by=col).churn.agg(['mean'])
+      df_group['diff'] = df_group['mean'] - global_mean
+      df_group['risk'] = df_group['mean'] / global_mean
+      print(df_group)
+      print('\n========================================\n')
+#+end_src
+
+#+RESULTS:
+#+begin_example
+            mean      diff      risk
+gender
+female  0.276824  0.006856  1.025396
+male    0.263214 -0.006755  0.974980
+
+========================================
+
+                   mean      diff      risk
+seniorcitizen
+0              0.242270 -0.027698  0.897403
+1              0.413377  0.143409  1.531208
+
+========================================
+
+             mean      diff      risk
+partner
+no       0.329809  0.059841  1.221659
+yes      0.205033 -0.064935  0.759472
+
+========================================
+
+                mean      diff      risk
+dependents
+no          0.313760  0.043792  1.162212
+yes         0.165666 -0.104302  0.613651
+
+========================================
+
+                  mean      diff      risk
+phoneservice
+no            0.241316 -0.028652  0.893870
+yes           0.273049  0.003081  1.011412
+
+========================================
+
+                      mean      diff      risk
+multiplelines
+no                0.257407 -0.012561  0.953474
+no_phone_service  0.241316 -0.028652  0.893870
+yes               0.290742  0.020773  1.076948
+
+========================================
+
+                     mean      diff      risk
+internetservice
+dsl              0.192347 -0.077621  0.712482
+fiber_optic      0.425171  0.155203  1.574895
+no               0.077805 -0.192163  0.288201
+
+========================================
+
+                         mean      diff      risk
+onlinesecurity
+no                   0.420921  0.150953  1.559152
+no_internet_service  0.077805 -0.192163  0.288201
+yes                  0.153226 -0.116742  0.567570
+
+========================================
+
+                         mean      diff      risk
+onlinebackup
+no                   0.404323  0.134355  1.497672
+no_internet_service  0.077805 -0.192163  0.288201
+yes                  0.217232 -0.052736  0.804660
+
+========================================
+
+                         mean      diff      risk
+deviceprotection
+no                   0.395875  0.125907  1.466379
+no_internet_service  0.077805 -0.192163  0.288201
+yes                  0.230412 -0.039556  0.853480
+
+========================================
+
+                         mean      diff      risk
+techsupport
+no                   0.418914  0.148946  1.551717
+no_internet_service  0.077805 -0.192163  0.288201
+yes                  0.159926 -0.110042  0.592390
+
+========================================
+
+                         mean      diff      risk
+streamingtv
+no                   0.342832  0.072864  1.269897
+no_internet_service  0.077805 -0.192163  0.288201
+yes                  0.302723  0.032755  1.121328
+
+========================================
+
+                         mean      diff      risk
+streamingmovies
+no                   0.338906  0.068938  1.255358
+no_internet_service  0.077805 -0.192163  0.288201
+yes                  0.307273  0.037305  1.138182
+
+========================================
+
+                    mean      diff      risk
+contract
+month-to-month  0.431701  0.161733  1.599082
+one_year        0.120573 -0.149395  0.446621
+two_year        0.028274 -0.241694  0.104730
+
+========================================
+
+                      mean      diff      risk
+paperlessbilling
+no                0.172071 -0.097897  0.637375
+yes               0.338151  0.068183  1.252560
+
+========================================
+
+                               mean      diff      risk
+paymentmethod
+bank_transfer_(automatic)  0.168171 -0.101797  0.622928
+credit_card_(automatic)    0.164339 -0.105630  0.608733
+electronic_check           0.455890  0.185922  1.688682
+mailed_check               0.193870 -0.076098  0.718121
+
+========================================
+#+end_example
+
+These tables tell us a lot. We see that e.g., 'gender' is not relevant for the
+churn rate. Senior citizens tend to churn more than non-seniors (or die more?),
+etc.
+
+Looking at 'techsupport' and 'contract', we see that clients without tech
+support churn more than those with tech support and that people with monthly
+contracts churn more than those with one- or two-year contracts.
+
+It is not really possible to see from this data which variable is more useful /
+important for predicting churn, however. To determine this, we can measure the
+degree of dependence between a categorical variable and the target value using
+various metrics. For categorical variables, *mutual information* is one such
+metric. Higher values of mutual information mean a higher degree of dependence.
+
+In Scikit-Learn, mutual information can be calculated with
+=mutual_info_score=:
+
+#+begin_src python
+  from sklearn.metrics import mutual_info_score
+
+  def calculate_mi(series):
+      return mutual_info_score(series, df_train_full.churn)
+
+  df_mi = df_train_full[categorical].apply(calculate_mi)
+  df_mi = df_mi.sort_values(ascending=False).to_frame(name='MI')
+  df_mi
+#+end_src
+
+#+RESULTS:
+#+begin_example
+                        MI
+contract          0.098320
+onlinesecurity    0.063085
+techsupport       0.061032
+internetservice   0.055868
+onlinebackup      0.046923
+deviceprotection  0.043453
+paymentmethod     0.043210
+streamingtv       0.031853
+streamingmovies   0.031581
+paperlessbilling  0.017589
+dependents        0.012346
+partner           0.009968
+seniorcitizen     0.009410
+multiplelines     0.000857
+phoneservice      0.000229
+gender            0.000117
+#+end_example
+
+'contract', 'onlinesecurity' and 'techsupport' are the most important features
+for predicting churn. 'gender' is very uninformative.
+
+Note that *mutual information* only works if both variables are categorical.
+Since the target value here is either 0 or 1, it is categorical. *Mutual
+information* doesn't work if one of the variables is numerical, however.
+
+To estimate the importance of the three numerical variables that we have, we can
+pretend the target value is numerical as well. One way to do this is to use the
+*correlation coefficient*. This value indicates what one variable does if the
+other changes:
+
+- A positive correlation means that if one variable goes up, the other does, as
+  well. For a binary target, this means more ones than zeros.
+- A zero correlation means the variables are independent.
+- A negative correlation means that if one variable goes up, the other goes down
+  (or more zeros appear).
+
+In Pandas:
+
+#+begin_src python
+  df_train_full[numerical].corrwith(df_train_full.churn)
+#+end_src
+
+#+RESULTS:
+: tenure           -0.351885
+: monthlycharges    0.196805
+: totalcharges     -0.196353
+: dtype: float64
+
+*** Feature engineering
+
+In Scikit-Learn, one-hot encoding of categorical features can be achieved in
+various ways. We will use =DictVectorizer=. This takes a list of dictionaries
+and creates a Numpy array of vectorized features. Numerical features are not
+touched by this method.
+
+First, create a dictionary from the training set:
+
+#+begin_src python :results silent
+  train_dict = df_train[categorical + numerical].to_dict('rows')
+#+end_src
+
+#+begin_src python :results output
+  import pprint
+
+  pprint.pprint(train_dict[0])
+#+end_src
+
+#+RESULTS:
+#+begin_example
+{'contract': 'month-to-month',
+ 'dependents': 'no',
+ 'deviceprotection': 'no',
+ 'gender': 'male',
+ 'internetservice': 'dsl',
+ 'monthlycharges': 44.65,
+ 'multiplelines': 'no_phone_service',
+ 'onlinebackup': 'yes',
+ 'onlinesecurity': 'no',
+ 'paperlessbilling': 'yes',
+ 'partner': 'no',
+ 'paymentmethod': 'mailed_check',
+ 'phoneservice': 'no',
+ 'seniorcitizen': 0,
+ 'streamingmovies': 'yes',
+ 'streamingtv': 'no',
+ 'techsupport': 'yes',
+ 'tenure': 1,
+ 'totalcharges': 44.65}
+#+end_example
+
+The =DictVectorizer= needs to be fit to the list of dictionaries:
+
+#+begin_src python :results silent
+  from sklearn.feature_extraction import DictVectorizer
+
+  dv = DictVectorizer(sparse=False)
+  dv.fit(train_dict)
+#+end_src
+
+The =fit= method checks the list of dictionaries and figures out how many
+possible values the categorical features have. Numerical features are left
+alone. We can now transform the list of dictionaries:
+
+#+begin_src python :results silent
+  X_train = dv.transform(train_dict)
+#+end_src
+
+Check the result:
+
+#+begin_src python
+  X_train[0]
+#+end_src
+
+#+RESULTS:
+| 1 | 0 | 0 | 1 | 0 | 1 | 0 | 0 | 0 | 1 | 1 | 0 | 0 | 44.65 | 0 | 1 | 0 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 1 | 44.65 |
+
+*** Machine learning for classification
+
+**** Logistic regression
+
+Logistic regression is a linear model, but despite its name it is not a
+regression model, it's a classification model. In particular, it's a binary
+classification model, the target value is 0 (the effect does not occur) or 1
+(the effect occurs). The actual output is the probability that the effect
+occurs.
+
+A probability must be a number between 0 and 1. To ensure that the model's
+output lies between 0 and 1, we use the sigmoid function. The formula for the
+logistic regression function is:
+
+\[
+g(x_{i}) = S(w_{0} + x^{T}_{}_{i} w)
+\]
+
+The dot product \(x^{T}_{i} w\) can be can be unwrapped as a sum:
+
+\[
+g(x_{i}) = S(w_{0} + \sum^{n}_{j=1}^{} x_{ij}w_{j})
+\]
+
+In Python, logistic regression can be implemented similar to linear regression:
+
+#+begin_src python :results silent
+  import math
+
+  def logistic_regression(xi):
+      score = bias
+      for j in range(n):
+          score = score + xi[j] * w[j]
+      prob = sigmoid(score)
+      return prob
+
+  def sigmoid(score):
+      return 1 / (1 + math.exp(-score))
+#+end_src
+
+#+begin_remark
+The code for =logistic_regression= isn't quite right. =bias= and =w= aren't
+defined. The book repeats the definition of =linear_regression=, but it doesn't
+conform to the definition of =linear_regression= in chapter 2.
+#+end_remark
+
+**** Training logistic regression
+
+We need to import the module:
+
+#+begin_src python :results silent
+  from sklearn.linear_model import LogisticRegression
+#+end_src
+
+Then create a model instance and train it:
+
+#+begin_src python :results silent
+  model = LogisticRegression(solver='liblinear', random_state=1)
+  model.fit(X_train, y_train)
+#+end_src
+
+Let us test the model on the validation set. First, we need to apply the same
+feature engineering to the validation set:
+
+#+begin_src python :results silent
+  val_dict = df_val[categorical + numerical].to_dict('rows')
+  X_val = dv.transform(val_dict)
+#+end_src
+
+We can now create predictions for our validation set. The method to use is
+=predict_proba=:
+
+#+begin_src python :results silent
+  y_pred = model.predict_proba(X_val)
+#+end_src
+
+Let us take a look:
+
+#+begin_src python :results output
+  print(y_pred)
+#+end_src
+
+#+RESULTS:
+: [[0.77380038 0.22619962]
+:  [0.77323804 0.22676196]
+:  [0.72712399 0.27287601]
+:  ...
+:  [0.9924975  0.0075025 ]
+:  [0.93711735 0.06288265]
+:  [0.99569786 0.00430214]]
+
+The result is a Numpy array of two columns: the first column contains the
+probability that the target is negative (no churn in our case) and the second
+contains the probability that the target is positive (churn).
+
+The two columns convey the same information, though: the sum of the two
+probabilities should always be 1. We can therefore discard one of the columns:
+
+#+begin_src python :results silent
+  y_pred = model.predict_proba(X_val)[:, 1]
+#+end_src
+
+These are so-called /soft/ predictions, because they predict the probability. In
+the current case, however, we need /hard/ predictions, i.e., =True= or =False=.
+We will have to set an arbitrary threshold, say 0.5:
+
+#+begin_src python :results silent
+  churn = y_pred >= 0.5
+#+end_src
+
+We now have the predictions in a form that we can use to evaluate the model. One
+quality measure is *accuracy*, which can be calculated in Numpy as follows:
+
+#+begin_src python
+  (y_val == churn).mean()
+#+end_src
+
+#+RESULTS:
+: 0.7923691215616682
+
+Note that =y_val= contains values 0 and 1, while =churn= contains =True= and
+=False=. They can nonetheless be compared, because Numpy casts =True= to 1 and
+=False= to 0.
+
+**** Model interpretation
+
+The logistic regression model learns two parameters from the data:
+
+- w_{0}: the bias.
+- w = (w_{1}, w_{2}, ..., w_{n}): the weights vector.
+
+In Scikit-Learn, w_{0} is accessible through =model.intercept_[0]=, the weights are
+stored in =model.coef_[0]=.
+
+#+begin_src python :results output
+  print("bias: ", model.intercept_[0], "\nbaseline probability: ", sigmoid(model.intercept_[0]))
+#+end_src
+
+#+RESULTS:
+: bias:  -0.12335101039997287
+: baseline probability:  0.4692012889104188
+
+The bias is the baseline prediction. If all other features are 0, the bias is
+the predicted result. In the case of logistic regression, we would still need to
+apply the sigmoid function. Here, the baseline probability is 47%, meaning that
+without knowing any other features, we must assume that it is almost as likely
+that a customer will churn as he is likely to stay.
+
+The feature names are available from the =DictVectorizer= object through the
+=get_feature_names= method:
+
+#+begin_src python :results output
+  pprint.pprint(dict(zip(dv.get_feature_names(), model.coef_[0].round(3))))
+#+end_src
+
+#+RESULTS:
+#+begin_example
+{'contract=month-to-month': 0.556,
+ 'contract=one_year': -0.184,
+ 'contract=two_year': -0.496,
+ 'dependents=no': -0.009,
+ 'dependents=yes': -0.114,
+ 'deviceprotection=no': 0.061,
+ 'deviceprotection=no_internet_service': -0.106,
+ 'deviceprotection=yes': -0.078,
+ 'gender=female': -0.043,
+ 'gender=male': -0.081,
+ 'internetservice=dsl': -0.353,
+ 'internetservice=fiber_optic': 0.336,
+ 'internetservice=no': -0.106,
+ 'monthlycharges': 0.001,
+ 'multiplelines=no': -0.17,
+ 'multiplelines=no_phone_service': 0.12,
+ 'multiplelines=yes': -0.074,
+ 'onlinebackup=no': 0.111,
+ 'onlinebackup=no_internet_service': -0.106,
+ 'onlinebackup=yes': -0.128,
+ 'onlinesecurity=no': 0.261,
+ 'onlinesecurity=no_internet_service': -0.106,
+ 'onlinesecurity=yes': -0.278,
+ 'paperlessbilling=no': -0.22,
+ 'paperlessbilling=yes': 0.096,
+ 'partner=no': -0.099,
+ 'partner=yes': -0.024,
+ 'paymentmethod=bank_transfer_(automatic)': -0.092,
+ 'paymentmethod=credit_card_(automatic)': -0.11,
+ 'paymentmethod=electronic_check': 0.242,
+ 'paymentmethod=mailed_check': -0.163,
+ 'phoneservice=no': 0.12,
+ 'phoneservice=yes': -0.244,
+ 'seniorcitizen': 0.258,
+ 'streamingmovies=no': -0.086,
+ 'streamingmovies=no_internet_service': -0.106,
+ 'streamingmovies=yes': 0.069,
+ 'streamingtv=no': -0.093,
+ 'streamingtv=no_internet_service': -0.106,
+ 'streamingtv=yes': 0.076,
+ 'techsupport=no': 0.218,
+ 'techsupport=no_internet_service': -0.106,
+ 'techsupport=yes': -0.235,
+ 'tenure': -0.067,
+ 'totalcharges': 0.0}
+#+end_example
+
+A negative weight decreases the final value and therefore reduces the
+probability that the customer will churn. Positive weights raise the
+probability.
+
+**** Using the model
+
+Let us apply the model to a customer for scoring. In order to do this, a
+customer must be represented in the same way as the training data. First we put
+the customer data in a dictionary:
+
+#+begin_src python :results silent
+  customer = {
+      'customerid':       '8879-zkjof',
+      'gender':           'female',
+      'seniorcitizen':     0,
+      'partner':          'no',
+      'dependents':       'no',
+      'tenure':            41,
+      'phoneservice':     'yes',
+      'multiplelines':    'no',
+      'internetservice':  'dsl',
+      'onlinesecurity':   'yes',
+      'onlinebackup':     'no',
+      'deviceprotection': 'yes',
+      'techsupport':      'yes',
+      'streamingtv':      'yes',
+      'streamingmovies':  'yes',
+      'contract':         'one_year',
+      'paperlessbilling': 'yes',
+      'paymentmethod':    'bank_transfer_(automatic)',
+      'monthlycharges':    79.85,
+      'totalcharges':      3320.75
+  }
+#+end_src
+
+This dict is converted to a matrix using the =DictVectorizer=. Note that the
+=DictVectorizer= object expects a list of dictionaries:
+
+#+begin_src python :results silent
+  X_test = dv.transform([customer])
+#+end_src
+
+This results in a matrix with one row:
+
+#+begin_src python :results verbatim
+  X_test
+#+end_src
+
+#+RESULTS:
+: [[0.00000e+00 1.00000e+00 0.00000e+00 1.00000e+00 0.00000e+00 0.00000e+00
+:   0.00000e+00 1.00000e+00 1.00000e+00 0.00000e+00 1.00000e+00 0.00000e+00
+:   0.00000e+00 7.98500e+01 1.00000e+00 0.00000e+00 0.00000e+00 1.00000e+00
+:   0.00000e+00 0.00000e+00 0.00000e+00 0.00000e+00 1.00000e+00 0.00000e+00
+:   1.00000e+00 1.00000e+00 0.00000e+00 1.00000e+00 0.00000e+00 0.00000e+00
+:   0.00000e+00 0.00000e+00 1.00000e+00 0.00000e+00 0.00000e+00 0.00000e+00
+:   1.00000e+00 0.00000e+00 0.00000e+00 1.00000e+00 0.00000e+00 0.00000e+00
+:   1.00000e+00 4.10000e+01 3.32075e+03]]
+
+This can then be fed to the model to create a prediction. As with the validation
+data, this yields a two-column array (with only one row), but we only need the
+value from the second column:
+
+#+begin_src python
+  model.predict_proba(X_test)[0, 1]
+#+end_src
+
+#+RESULTS:
+: 0.053396497111509275
+
+The probability of this customer churning is very low.
+
+Scoring another client:
+
+#+begin_src python :results silent
+  customer = {
+      'gender':           'female',
+      'seniorcitizen':     1,
+      'partner':          'no',
+      'dependents':       'no',
+      'phoneservice':     'yes',
+      'multiplelines':    'yes',
+      'internetservice':  'fiber_optic',
+      'onlinesecurity':   'no',
+      'onlinebackup':     'no',
+      'deviceprotection': 'no',
+      'techsupport':      'no',
+      'streamingtv':      'yes',
+      'streamingmovies':  'no',
+      'contract':         'month-to-month',
+      'paperlessbilling': 'yes',
+      'paymentmethod':    'electronic_check',
+      'tenure':            1,
+      'monthlycharges':    85.7,
+      'totalcharges':      85.7
+  }
+#+end_src
+
+#+begin_src python
+  X_test = dv.transform([customer])
+  model.predict_proba(X_test)[0,1]
+#+end_src
+
+#+RESULTS:
+: 0.8287013608698214
+
+This customer's probability of churning is high.
+
+
 
 
 * COMMENT Local Variables
