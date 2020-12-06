@@ -2553,6 +2553,17 @@ Scoring another client:
 This customer's probability of churning is high.
 
 
+** Exercises and code
+
+*** Lead scoring
+:PROPERTIES:
+:header-args:python+: :session ch3-ex1
+:END:
+
+*** Default prediction
+:PROPERTIES:
+:header-args:python+: :session ch3-ex2
+:END:
 
 
 * COMMENT Local Variables
