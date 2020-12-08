@@ -2605,8 +2605,9 @@ The data contains the following fields:
 | Last Notable Activity                            | The last notable acitivity performed by the student.                                                                               |
 
 Note: The field "Specialization" includes the level 'Select Specialization'
-which means the customer had not selected this option while filling the form.
+which means the customer has not selected this option while filling the form.
 
+**** Imports
 
 #+begin_src python :results silent
   from mlutils import *
