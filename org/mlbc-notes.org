@@ -2616,6 +2616,8 @@ which means the customer has not selected this option while filling the form.
   import pandas as pd
 #+end_src
 
+**** Read the data:
+
 #+begin_src python :results silent
   df = pd.read_csv('../data/Leads.csv')
 #+end_src
@@ -2666,11 +2668,13 @@ A free copy of Mastering The Interview                                          
 Last Notable Activity                                                      Modified                          Email Opened                          Email Opened                              Modified
 #+end_example
 
-Normalise alphanumeric data:
+**** Normalise alphanumeric data:
 
 #+begin_src python :results silent
   clean_alphanum_data(df)
 #+end_src
+
+**** Variable types
 
 The types of the variables:
 
@@ -2719,6 +2723,8 @@ a_free_copy_of_mastering_the_interview            object
 last_notable_activity                             object
 dtype: object
 #+end_example
+
+**** Check the target value:
 
 The target variable is 'Converted', which is numerical. Let's see if it's
 binary:
