@@ -2748,6 +2748,97 @@ The dataset is imbalanced:
 #+RESULTS:
 : 0.385
 
+**** Check for empty data:
+
+#+begin_src python
+  df.isnull().sum()
+#+end_src
+
+#+RESULTS:
+#+begin_example
+prospect_id                                         0
+lead_number                                         0
+lead_origin                                         0
+lead_source                                        36
+do_not_email                                        0
+do_not_call                                         0
+converted                                           0
+totalvisits                                       137
+total_time_spent_on_website                         0
+page_views_per_visit                              137
+last_activity                                     103
+country                                          2461
+specialization                                   1438
+how_did_you_hear_about_x_education               2207
+what_is_your_current_occupation                  2690
+what_matters_most_to_you_in_choosing_a_course    2709
+search                                              0
+magazine                                            0
+newspaper_article                                   0
+x_education_forums                                  0
+newspaper                                           0
+digital_advertisement                               0
+through_recommendations                             0
+receive_more_updates_about_our_courses              0
+tags                                             3353
+lead_quality                                     4767
+update_me_on_supply_chain_content                   0
+get_updates_on_dm_content                           0
+lead_profile                                     2709
+city                                             1420
+asymmetrique_activity_index                      4218
+asymmetrique_profile_index                       4218
+asymmetrique_activity_score                      4218
+asymmetrique_profile_score                       4218
+i_agree_to_pay_the_amount_through_cheque            0
+a_free_copy_of_mastering_the_interview              0
+last_notable_activity                               0
+dtype: int64
+#+end_example
+
+| Feature                                       | type    | missing values |
+|-----------------------------------------------+---------+----------------|
+| prospect_id                                   | object  |              0 |
+| lead_number                                   | int64   |              0 |
+| lead_origin                                   | object  |              0 |
+| lead_source                                   | object  |             36 |
+| do_not_email                                  | object  |              0 |
+| do_not_call                                   | object  |              0 |
+| converted                                     | int64   |              0 |
+| totalvisits                                   | float64 |            137 |
+| total_time_spent_on_website                   | int64   |              0 |
+| page_views_per_visit                          | float64 |            137 |
+| last_activity                                 | object  |            103 |
+| country                                       | object  |           2461 |
+| specialization                                | object  |           1438 |
+| how_did_you_hear_about_x_education            | object  |           2207 |
+| what_is_your_current_occupation               | object  |           2690 |
+| what_matters_most_to_you_in_choosing_a_course | object  |           2709 |
+| search                                        | object  |              0 |
+| magazine                                      | object  |              0 |
+| newspaper_article                             | object  |              0 |
+| x_education_forums                            | object  |              0 |
+| newspaper                                     | object  |              0 |
+| digital_advertisement                         | object  |              0 |
+| through_recommendations                       | object  |              0 |
+| receive_more_updates_about_our_courses        | object  |              0 |
+| tags                                          | object  |           3353 |
+| lead_quality                                  | object  |           4767 |
+| update_me_on_supply_chain_content             | object  |              0 |
+| get_updates_on_dm_content                     | object  |              0 |
+| lead_profile                                  | object  |           2709 |
+| city                                          | object  |           1420 |
+| asymmetrique_activity_index                   | object  |           4218 |
+| asymmetrique_profile_index                    | object  |           4218 |
+| asymmetrique_activity_score                   | float64 |           4218 |
+| asymmetrique_profile_score                    | float64 |           4218 |
+| i_agree_to_pay_the_amount_through_cheque      | object  |              0 |
+| a_free_copy_of_mastering_the_interview        | object  |              0 |
+| last_notable_activity                         | object  |              0 |
+
+
+**** Split the data:
+
 #+begin_src python :results silent
   from sklearn.model_selection import train_test_split
 
