@@ -2836,6 +2836,15 @@ dtype: int64
 | a_free_copy_of_mastering_the_interview        | object  |              0 |
 | last_notable_activity                         | object  |              0 |
 
+#+begin_src python :results silent
+  numerical, categorical = [], []
+
+  for e in zip(df.columns, df.dtypes):
+      if e[1] == np.object:
+          categorical.append(e[0])
+      else:
+          numerical.append(e[0])
+#+end_src
 
 **** Split the data:
 
