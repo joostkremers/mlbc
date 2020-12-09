@@ -2873,6 +2873,17 @@ Set missing numerical values to 0 and missing categorical values to 'n.a.':
   del df_val['converted']
 #+end_src
 
+**** Create a vectorizer:
+
+#+begin_src python :results silent
+  from sklearn.feature_extraction import DictVectorizer
+
+  train_dict = df_train[numerical + categorical].to_dict('rows')
+  dv = DictVectorizer(sparse=False)
+  dv.fit(train_dict)
+#+end_src
+
+
 *** Default prediction
 :PROPERTIES:
 :header-args:python+: :session ch3-ex2
