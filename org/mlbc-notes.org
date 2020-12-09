@@ -2095,12 +2095,13 @@ mailed_check               0.193870 -0.076098  0.718121
 #+end_example
 
 These tables tell us a lot. We see that e.g., 'gender' is not relevant for the
-churn rate. Senior citizens tend to churn more than non-seniors (or die more?),
-etc.
+churn rate. Senior citizens churn more than non-seniors [or die more? JK], etc.
 
 Looking at 'techsupport' and 'contract', we see that clients without tech
 support churn more than those with tech support and that people with monthly
 contracts churn more than those with one- or two-year contracts.
+
+**** Mutual information
 
 It is not really possible to see from this data which variable is more useful /
 important for predicting churn, however. To determine this, we can measure the
@@ -2149,6 +2150,8 @@ for predicting churn. 'gender' is very uninformative.
 Note that *mutual information* only works if both variables are categorical.
 Since the target value here is either 0 or 1, it is categorical. *Mutual
 information* doesn't work if one of the variables is numerical, however.
+
+**** Correlation coefficient
 
 To estimate the importance of the three numerical variables that we have, we can
 pretend the target value is numerical as well. One way to do this is to use the
@@ -2851,14 +2854,112 @@ Let's get lists of numerical and categorical features:
   numerical.remove('converted')
 #+end_src
 
+Check item 77, which has some missing values:
+
+#+begin_src python
+  df.iloc[77]
+#+end_src
+
+#+RESULTS:
+#+begin_example
+prospect_id                                      895d4905-f534-4f18-915b-8d239a72b5dc
+lead_number                                                                    659722
+lead_origin                                                             lead_add_form
+lead_source                                                          welingak_website
+do_not_email                                                                       no
+do_not_call                                                                        no
+converted                                                                           1
+totalvisits                                                                       NaN
+total_time_spent_on_website                                                      1096
+page_views_per_visit                                                              NaN
+last_activity                                                                     NaN
+country                                                                           NaN
+specialization                                                                 select
+how_did_you_hear_about_x_education                                             select
+what_is_your_current_occupation                                            unemployed
+what_matters_most_to_you_in_choosing_a_course                 better_career_prospects
+search                                                                             no
+magazine                                                                           no
+newspaper_article                                                                  no
+x_education_forums                                                                 no
+newspaper                                                                          no
+digital_advertisement                                                              no
+through_recommendations                                                            no
+receive_more_updates_about_our_courses                                             no
+tags                                                                              NaN
+lead_quality                                                                      NaN
+update_me_on_supply_chain_content                                                  no
+get_updates_on_dm_content                                                          no
+lead_profile                                                                   select
+city                                                                           select
+asymmetrique_activity_index                                                 02.medium
+asymmetrique_profile_index                                                  02.medium
+asymmetrique_activity_score                                                        14
+asymmetrique_profile_score                                                         15
+i_agree_to_pay_the_amount_through_cheque                                           no
+a_free_copy_of_mastering_the_interview                                             no
+last_notable_activity                                                        modified
+Name: 77, dtype: object
+#+end_example
+
 Set missing numerical values to 0 and missing categorical values to 'n.a.':
 
-#+begin_src python :results nil
+#+begin_src python :results silent
   df[numerical] = df[numerical].fillna(0)
   df[categorical] = df[categorical].fillna('n.a.')
 #+end_src
 
-**** Split the data:
+See if it worked:
+
+#+begin_src python
+  df.iloc[77]
+#+end_src
+
+#+RESULTS:
+#+begin_example
+prospect_id                                      895d4905-f534-4f18-915b-8d239a72b5dc
+lead_number                                                                    659722
+lead_origin                                                             lead_add_form
+lead_source                                                          welingak_website
+do_not_email                                                                       no
+do_not_call                                                                        no
+converted                                                                           1
+totalvisits                                                                         0
+total_time_spent_on_website                                                      1096
+page_views_per_visit                                                                0
+last_activity                                                                    n.a.
+country                                                                          n.a.
+specialization                                                                 select
+how_did_you_hear_about_x_education                                             select
+what_is_your_current_occupation                                            unemployed
+what_matters_most_to_you_in_choosing_a_course                 better_career_prospects
+search                                                                             no
+magazine                                                                           no
+newspaper_article                                                                  no
+x_education_forums                                                                 no
+newspaper                                                                          no
+digital_advertisement                                                              no
+through_recommendations                                                            no
+receive_more_updates_about_our_courses                                             no
+tags                                                                             n.a.
+lead_quality                                                                     n.a.
+update_me_on_supply_chain_content                                                  no
+get_updates_on_dm_content                                                          no
+lead_profile                                                                   select
+city                                                                           select
+asymmetrique_activity_index                                                 02.medium
+asymmetrique_profile_index                                                  02.medium
+asymmetrique_activity_score                                                        14
+asymmetrique_profile_score                                                         15
+i_agree_to_pay_the_amount_through_cheque                                           no
+a_free_copy_of_mastering_the_interview                                             no
+last_notable_activity                                                        modified
+Name: 77, dtype: object
+#+end_example
+
+Yes, it worked.
+
+**** Splitting the data:
 
 #+begin_src python :results silent
   from sklearn.model_selection import train_test_split
@@ -2873,7 +2974,143 @@ Set missing numerical values to 0 and missing categorical values to 'n.a.':
   del df_val['converted']
 #+end_src
 
+**** Assessing feature importance
+
+There are quite a few features, some categorical features have quite a few
+values:
+
+#+begin_src python
+  df[categorical].nunique()
+#+end_src
+
+#+RESULTS:
+#+begin_example
+prospect_id                                      9240
+lead_origin                                         5
+lead_source                                        21
+do_not_email                                        2
+do_not_call                                         2
+last_activity                                      18
+country                                            39
+specialization                                     20
+how_did_you_hear_about_x_education                 11
+what_is_your_current_occupation                     7
+what_matters_most_to_you_in_choosing_a_course       4
+search                                              2
+magazine                                            1
+newspaper_article                                   2
+x_education_forums                                  2
+newspaper                                           2
+digital_advertisement                               2
+through_recommendations                             2
+receive_more_updates_about_our_courses              1
+tags                                               27
+lead_quality                                        6
+update_me_on_supply_chain_content                   1
+get_updates_on_dm_content                           1
+lead_profile                                        7
+city                                                8
+asymmetrique_activity_index                         4
+asymmetrique_profile_index                          4
+i_agree_to_pay_the_amount_through_cheque            1
+a_free_copy_of_mastering_the_interview              2
+last_notable_activity                              16
+dtype: int64
+#+end_example
+
+=prospect_id= should of course be removed:
+
+#+begin_src python :results silent
+  categorical.remove('prospect_id')
+#+end_src
+
+#+begin_src python
+  from sklearn.metrics import mutual_info_score
+
+  def calculate_mi(series):
+      return mutual_info_score(series, df_train_full.converted)
+
+  df_mi = df_train_full[categorical].apply(calculate_mi)
+  df_mi = df_mi.sort_values(ascending=False).to_frame(name='MI')
+  df_mi
+#+end_src
+
+#+RESULTS:
+#+begin_example
+                                                         MI
+tags                                           3.769913e-01
+lead_quality                                   1.861223e-01
+lead_profile                                   1.138871e-01
+what_is_your_current_occupation                9.238140e-02
+last_activity                                  8.853869e-02
+last_notable_activity                          7.251663e-02
+lead_source                                    6.245069e-02
+what_matters_most_to_you_in_choosing_a_course  5.569131e-02
+lead_origin                                    5.559875e-02
+how_did_you_hear_about_x_education             4.773990e-02
+specialization                                 3.784505e-02
+city                                           3.601412e-02
+asymmetrique_activity_index                    1.161577e-02
+asymmetrique_profile_index                     8.982885e-03
+do_not_email                                   8.910986e-03
+country                                        4.992103e-03
+a_free_copy_of_mastering_the_interview         7.452385e-04
+through_recommendations                        1.505137e-04
+digital_advertisement                          1.307250e-04
+do_not_call                                    1.298057e-04
+newspaper_article                              1.298057e-04
+newspaper                                      6.535683e-05
+search                                         1.204580e-06
+get_updates_on_dm_content                      7.771561e-16
+magazine                                       7.771561e-16
+x_education_forums                             7.771561e-16
+receive_more_updates_about_our_courses         7.771561e-16
+i_agree_to_pay_the_amount_through_cheque       7.771561e-16
+update_me_on_supply_chain_content              7.771561e-16
+#+end_example
+
+So let's make a fairly arbitrary choice and take the first 13 features:
+
+#+begin_src python :results silent
+  categorical_included = ['tags',
+                          'lead_quality',
+                          'lead_profile',
+                          'what_is_your_current_occupation',
+                          'last_activity',
+                          'last_notable_activity',
+                          'lead_source',
+                          'what_matters_most_to_you_in_choosing_a_course',
+                          'lead_origin',
+                          'how_did_you_hear_about_x_education',
+                          'specialization',
+                          'city',
+                          'asymmetrique_activity_index']
+#+end_src
+
+Check the numerical features:
+
+#+begin_src python
+  df_train_full[numerical].corrwith(df_train_full.converted)
+#+end_src
+
+#+RESULTS:
+: lead_number                    0.021904
+: totalvisits                    0.026085
+: total_time_spent_on_website    0.363470
+: page_views_per_visit          -0.009781
+: asymmetrique_activity_score    0.018662
+: asymmetrique_profile_score     0.027745
+: dtype: float64
+
+Let's just include them all:
+
+#+begin_src python :results silent
+  numerical_included = numerical
+#+end_src
+
 **** Create a vectorizer:
+
+First try with all features:
 
 #+begin_src python :results silent
   from sklearn.feature_extraction import DictVectorizer
@@ -2883,12 +3120,137 @@ Set missing numerical values to 0 and missing categorical values to 'n.a.':
   dv.fit(train_dict)
 #+end_src
 
+Create the training set:
+
+#+begin_src python :results silent
+  X_train = dv.transform(train_dict)
+#+end_src
+
+**** Training the model:
+
+#+begin_src python :results silent
+  from sklearn.linear_model import LogisticRegression
+
+  model = LogisticRegression(solver='liblinear', random_state=1)
+  model.fit(X_train, y_train)
+#+end_src
+
+**** Evaluating the model
+
+Let's first check against the target values:
+
+#+begin_remark
+Well, this is a classification model, which cannot be evaluated with RMSE, but I
+only found that out later.
+#+end_remark
+
+#+begin_src python
+  y_pred = model.predict_proba(X_train)[:,1]
+  rmse(y_train, y_pred)
+#+end_src
+
+#+RESULTS:
+: 0.4518113051361913
+
+Now check the validation set:
+
+#+begin_src python
+  val_dict = df_val[numerical + categorical].to_dict('rows')
+  X_val = dv.transform(val_dict)
+  y_val_pred = model.predict_proba(X_val)[:,1]
+  rmse(y_val, y_val_pred) 
+#+end_src
+
+#+RESULTS:
+: 0.4509503651768312
+
+The performance on the validation set is the same as the performance on the
+training set.
+
+**** Try with fewer features:
+
+We create a new vectorizer with only the features that we selected above.
+
+#+begin_src python :results output
+  train_dict = df_train[numerical_included + categorical_included].to_dict('rows')
+  val_dict = df_val[numerical_included + categorical_included].to_dict('rows')
+  v = DictVectorizer(sparse=False)
+  dv.fit(train_dict)
+
+  X_train = dv.transform(train_dict)
+  X_val = dv.transform(val_dict)
+
+  model = LogisticRegression(solver='liblinear', random_state=1)
+  model.fit(X_train, y_train)
+
+  y_pred = model.predict_proba(X_train)[:,1]
+  y_pred_val = model.predict_proba(X_val)[:,1]
+
+  print('training set performance: ', round(rmse(y_train, y_pred), 3),
+        '\nvalidation set performance: ', round(rmse(y_val, y_val_pred), 3))
+#+end_src
+
+#+RESULTS:
+: /home/joost/.cache/pypoetry/virtualenvs/mlbc-JThvy3A1-py3.8/lib/python3.8/site-packages/pandas/core/frame.py:1485: FutureWarning: Using short name for 'orient' is deprecated. Only the options: ('dict', list, 'series', 'split', 'records', 'index') will be used in a future version. Use one of the above to silence this warning.
+:   warnings.warn(
+: training set performance:  0.452 
+: validation set performance:  0.451
+
+Apparently, removing features with little importance has little effect on the
+model's performance.
+
+Let's try again with yet fewer features:
+
+#+begin_src python :results silent
+  categorical_included = ['tags',
+                          'lead_quality',
+                          'lead_profile',
+                          'what_is_your_current_occupation',
+                          'last_activity',
+                          'last_notable_activity']
+#+end_src
+
+#+begin_src python :results output
+  train_dict = df_train[numerical_included + categorical_included].to_dict('rows')
+  val_dict = df_val[numerical_included + categorical_included].to_dict('rows')
+  v = DictVectorizer(sparse=False)
+  dv.fit(train_dict)
+
+  X_train = dv.transform(train_dict)
+  X_val = dv.transform(val_dict)
+
+  model = LogisticRegression(solver='liblinear', random_state=1)
+  model.fit(X_train, y_train)
+
+  y_pred = model.predict_proba(X_train)[:,1]
+  y_pred_val = model.predict_proba(X_val)[:,1]
+
+  print('training set performance: ', round(rmse(y_train, y_pred), 3),
+        '\nvalidation set performance: ', round(rmse(y_val, y_val_pred), 3))
+#+end_src
+
+#+RESULTS:
+: /home/joost/.cache/pypoetry/virtualenvs/mlbc-JThvy3A1-py3.8/lib/python3.8/site-packages/pandas/core/frame.py:1485: FutureWarning: Using short name for 'orient' is deprecated. Only the options: ('dict', list, 'series', 'split', 'records', 'index') will be used in a future version. Use one of the above to silence this warning.
+:   warnings.warn(
+: training set performance:  0.452 
+: validation set performance:  0.451
+
+Nope, still doesn't seem to do any better.
 
 *** Default prediction
 :PROPERTIES:
 :header-args:python+: :session ch3-ex2
 :END:
 
+
+* Chapter 4: Evaluation metrics for classification
+
+** Notes to chapter 4                                             :noexport:
+:PROPERTIES:
+:header-args:python+: :session ch3-notes
+:END:
+
+*** 
 
 * COMMENT Local Variables
 :PROPERTIES:
