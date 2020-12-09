@@ -2748,7 +2748,7 @@ The dataset is imbalanced:
 #+RESULTS:
 : 0.385
 
-**** Check for empty data:
+**** Handling empty data:
 
 #+begin_src python
   df.isnull().sum()
@@ -2835,6 +2835,8 @@ dtype: int64
 | i_agree_to_pay_the_amount_through_cheque      | object  |              0 |
 | a_free_copy_of_mastering_the_interview        | object  |              0 |
 | last_notable_activity                         | object  |              0 |
+
+Let's get lists of numerical and categorical features:
 
 #+begin_src python :results silent
   numerical, categorical = [], []
