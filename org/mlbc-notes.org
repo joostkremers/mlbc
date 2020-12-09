@@ -2851,6 +2851,13 @@ Let's get lists of numerical and categorical features:
   numerical.remove('converted')
 #+end_src
 
+Set missing numerical values to 0 and missing categorical values to 'n.a.':
+
+#+begin_src python :results nil
+  df[numerical] = df[numerical].fillna(0)
+  df[categorical] = df[categorical].fillna('n.a.')
+#+end_src
+
 **** Split the data:
 
 #+begin_src python :results silent
