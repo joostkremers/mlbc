@@ -2846,6 +2846,9 @@ Let's get lists of numerical and categorical features:
           categorical.append(e[0])
       else:
           numerical.append(e[0])
+
+  # The target value is still part of the list, so we remove it:
+  numerical.remove('converted')
 #+end_src
 
 **** Split the data:
