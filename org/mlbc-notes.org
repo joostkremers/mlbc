@@ -3247,10 +3247,51 @@ Nope, still doesn't seem to do any better.
 
 ** Notes to chapter 4                                             :noexport:
 :PROPERTIES:
-:header-args:python+: :session ch3-notes
+:header-args:python+: :session ch4-notes
 :END:
 
-*** 
+*** Repeat the code from chapter 3
+
+#+begin_src python :results silent
+  from mlutils import *
+
+  import seaborn as sns
+  from matplotlib import pyplot as plt
+
+  df = pd.read_csv('../data/telco-customer-churn.csv')
+
+  clean_alphanum_data(df)
+
+  df.churn = (df.churn == 'yes').astype(int)
+
+  from sklearn.model_selection import train_test_split
+
+  df_train_full, df_test = train_test_split(df, test_size=0.2, random_state=1)
+  df_train, df_val = train_test_split(df_train_full, test_size=0.2, random_state=11)
+
+  y_train = df_train.churn.values
+  y_val = df_val.churn.values
+
+  del df_train['churn']
+  del df_val['churn']
+
+   categorical = ['gender', 'seniorcitizen', 'partner', 'dependents',
+                  'phoneservice', 'multiplelines', 'internetservice',
+                  'onlinesecurity', 'onlinebackup', 'deviceprotection',
+                  'techsupport', 'streamingtv', 'streamingmovies',
+                  'contract', 'paperlessbilling', 'paymentmethod']
+   numerical = ['tenure', 'monthlycharges', 'totalcharges']
+
+  train_dict = df_train[categorical + numerical].to_dict('rows')
+
+  from sklearn.feature_extraction import DictVectorizer
+
+  dv = DictVectorizer(sparse=False)
+  dv.fit(train_dict)
+
+  X_train = dv.transform(train_dict)
+#+end_src
+
 
 * COMMENT Local Variables
 :PROPERTIES:
