@@ -3255,16 +3255,14 @@ Nope, still doesn't seem to do any better.
 #+begin_src python :results silent
   from mlutils import *
 
-  import seaborn as sns
-  from matplotlib import pyplot as plt
+  from sklearn.model_selection import train_test_split
+  from sklearn.feature_extraction import DictVectorizer
 
   df = pd.read_csv('../data/telco-customer-churn.csv')
 
   clean_alphanum_data(df)
 
   df.churn = (df.churn == 'yes').astype(int)
-
-  from sklearn.model_selection import train_test_split
 
   df_train_full, df_test = train_test_split(df, test_size=0.2, random_state=1)
   df_train, df_val = train_test_split(df_train_full, test_size=0.2, random_state=11)
@@ -3283,8 +3281,6 @@ Nope, still doesn't seem to do any better.
    numerical = ['tenure', 'monthlycharges', 'totalcharges']
 
   train_dict = df_train[categorical + numerical].to_dict('rows')
-
-  from sklearn.feature_extraction import DictVectorizer
 
   dv = DictVectorizer(sparse=False)
   dv.fit(train_dict)
