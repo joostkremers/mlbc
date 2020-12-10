@@ -3283,12 +3283,12 @@ Nope, still doesn't seem to do any better.
   del df_train['churn']
   del df_val['churn']
 
-   categorical = ['gender', 'seniorcitizen', 'partner', 'dependents',
-                  'phoneservice', 'multiplelines', 'internetservice',
-                  'onlinesecurity', 'onlinebackup', 'deviceprotection',
-                  'techsupport', 'streamingtv', 'streamingmovies',
-                  'contract', 'paperlessbilling', 'paymentmethod']
-   numerical = ['tenure', 'monthlycharges', 'totalcharges']
+  categorical = ['gender', 'seniorcitizen', 'partner', 'dependents',
+                 'phoneservice', 'multiplelines', 'internetservice',
+                 'onlinesecurity', 'onlinebackup', 'deviceprotection',
+                 'techsupport', 'streamingtv', 'streamingmovies',
+                 'contract', 'paperlessbilling', 'paymentmethod']
+  numerical = ['tenure', 'monthlycharges', 'totalcharges']
 
   train_dict = df_train[categorical + numerical].to_dict('rows')
 
