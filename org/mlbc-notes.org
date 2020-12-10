@@ -3108,7 +3108,7 @@ Let's just include them all:
   numerical_included = numerical
 #+end_src
 
-**** Create a vectorizer:
+**** Creating a vectorizer:
 
 First try with all features:
 
@@ -3137,20 +3137,17 @@ Create the training set:
 
 **** Evaluating the model
 
-Let's first check against the target values:
-
-#+begin_remark
-Well, this is a classification model, which cannot be evaluated with RMSE, but I
-only found that out later.
-#+end_remark
+Let's first check against the target values, using 0.5 as the cut-off point for
+a prediction of =True=. This is still with all the features.
 
 #+begin_src python
   y_pred = model.predict_proba(X_train)[:,1]
-  rmse(y_train, y_pred)
+  conversion = y_pred >= 0.5
+  (conversion == y_train).mean()
 #+end_src
 
 #+RESULTS:
-: 0.4518113051361913
+: 0.7226450194486724
 
 Now check the validation set:
 
@@ -3158,11 +3155,12 @@ Now check the validation set:
   val_dict = df_val[numerical + categorical].to_dict('rows')
   X_val = dv.transform(val_dict)
   y_val_pred = model.predict_proba(X_val)[:,1]
-  rmse(y_val, y_val_pred) 
+  conversion = y_val_pred >= 0.5
+  round((conversion == y_val).mean(), 3)
 #+end_src
 
 #+RESULTS:
-: 0.4509503651768312
+: 0.72
 
 The performance on the validation set is the same as the performance on the
 training set.
@@ -3186,15 +3184,21 @@ We create a new vectorizer with only the features that we selected above.
   y_pred = model.predict_proba(X_train)[:,1]
   y_pred_val = model.predict_proba(X_val)[:,1]
 
-  print('training set performance: ', round(rmse(y_train, y_pred), 3),
-        '\nvalidation set performance: ', round(rmse(y_val, y_val_pred), 3))
+  conversion_train = y_pred >= 0.5
+  accuracy_train = (conversion_train == y_train).mean()
+
+  conversion_val = y_pred_val >= 0.5
+  accuracy_val = (conversion_val == y_val).mean()
+
+  print('training set accuracy  :', round(accuracy_train, 3))
+  print('validation set accuracy:', round(accuracy_val, 3))
 #+end_src
 
 #+RESULTS:
 : /home/joost/.cache/pypoetry/virtualenvs/mlbc-JThvy3A1-py3.8/lib/python3.8/site-packages/pandas/core/frame.py:1485: FutureWarning: Using short name for 'orient' is deprecated. Only the options: ('dict', list, 'series', 'split', 'records', 'index') will be used in a future version. Use one of the above to silence this warning.
 :   warnings.warn(
-: training set performance:  0.452 
-: validation set performance:  0.451
+: training set accuracy  : 0.723
+: validation set accuracy: 0.72
 
 Apparently, removing features with little importance has little effect on the
 model's performance.
@@ -3225,15 +3229,21 @@ Let's try again with yet fewer features:
   y_pred = model.predict_proba(X_train)[:,1]
   y_pred_val = model.predict_proba(X_val)[:,1]
 
-  print('training set performance: ', round(rmse(y_train, y_pred), 3),
-        '\nvalidation set performance: ', round(rmse(y_val, y_val_pred), 3))
+  conversion_train = y_pred >= 0.5
+  accuracy_train = (conversion_train == y_train).mean()
+
+  conversion_val = y_pred_val >= 0.5
+  accuracy_val = (conversion_val == y_val).mean()
+
+  print('training set accuracy  :', round(accuracy_train, 3))
+  print('validation set accuracy:', round(accuracy_val, 3))
 #+end_src
 
 #+RESULTS:
 : /home/joost/.cache/pypoetry/virtualenvs/mlbc-JThvy3A1-py3.8/lib/python3.8/site-packages/pandas/core/frame.py:1485: FutureWarning: Using short name for 'orient' is deprecated. Only the options: ('dict', list, 'series', 'split', 'records', 'index') will be used in a future version. Use one of the above to silence this warning.
 :   warnings.warn(
-: training set performance:  0.452 
-: validation set performance:  0.451
+: training set accuracy  : 0.723
+: validation set accuracy: 0.72
 
 Nope, still doesn't seem to do any better.
 
