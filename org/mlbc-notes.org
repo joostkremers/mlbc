@@ -3263,10 +3263,14 @@ Nope, still doesn't seem to do any better.
 *** Repeat the code from chapter 3
 
 #+begin_src python :results silent
-  from mlutils import *
+  import numpy as np
+  import pandas as pd
 
   from sklearn.model_selection import train_test_split
   from sklearn.feature_extraction import DictVectorizer
+  from sklearn.linear_model import LogisticRegression
+
+  from mlutils import clean_alphanum_data
 
   df = pd.read_csv('../data/telco-customer-churn.csv')
 
@@ -3296,7 +3300,251 @@ Nope, still doesn't seem to do any better.
   dv.fit(train_dict)
 
   X_train = dv.transform(train_dict)
+
+  model = LogisticRegression(solver='liblinear', random_state=1)
+  model.fit(X_train, y_train)
+
+  val_dict = df_val[categorical + numerical].to_dict('rows')
+  X_val = dv.transform(val_dict)
 #+end_src
+
+Calculate the accuracy:
+
+#+begin_src python
+  y_pred = model.predict_proba(X_val)[:,1]
+  churn = y_pred >= 0.5
+  round((churn == y_val).mean(), 3)
+#+end_src
+
+#+RESULTS:
+: 0.795
+
+Scikit-learn also offers various metrics to evaluate a model:
+
+#+begin_src python :results silent
+  from sklearn.metrics import accuracy_score
+#+end_src
+
+Now lets loop over several threshold values to see which gives the best accuracy:
+
+#+begin_src python :results output
+  thresholds = np.linspace(0, 1, 11)
+
+  for t in thresholds:
+      churn = y_pred >= t
+      acc = accuracy_score(y_val, churn)
+      print('%0.2f %0.3f' % (t, acc))
+#+end_src
+
+#+RESULTS:
+#+begin_example
+0.00 0.264
+0.10 0.585
+0.20 0.685
+0.30 0.745
+0.40 0.775
+0.50 0.795
+0.60 0.789
+0.70 0.776
+0.80 0.749
+0.90 0.736
+1.00 0.736
+#+end_example
+
+A threshold value of 0.5 gives the best accuracy.
+
+*** Dummy baseline
+
+The best our model can do is an 80% accuracy. The question is whether this is
+actually a *good* score. In order to do this, we must compare the score with
+something else, a baseline model. One option is to use a dummy baseline: a model
+that always predicts the same value.
+
+Since most users do not churn, such a dummy baseline would predict =False= for
+all users. This is easy to set up:
+
+#+begin_src python :results silent
+  size_val = len(y_val)
+  baseline = np.repeat(False, size_val)
+#+end_src
+
+This simply creates an array of the same size as =y_val= with all =False=
+values. The accuracy of such a prediction against =y_val= is:
+
+#+begin_src python
+  round(accuracy_score(baseline, y_val), 3)
+#+end_src
+
+#+RESULTS:
+: 0.736
+
+The baseline accuracy isn't that much worse than what our model predicts, so
+from the looks of it, our model isn't all that good.
+
+Still, predicting churn could be a very hard problem and a 6 percentage points
+increase may actually be quite a lot. We need other metrics to determine that.
+
+*** Confusion table
+
+A seemingly high accuracy (80%) vs. a baseline that's almost as good (74%) is
+common for imbalanced datasets. A better metric would be a *confusion table*: a
+table that concisely represents every possible outcome for our model’s
+predictions.
+
+A confusion table lists the true and false positives (TP / NP) and the true and
+false negatives (TN / FN):
+
++----------------+---------------+
+|                |  Predictions  |
+|                |               |
+|                +-------+-------+
+|                | False | True  |
++--------+-------+-------+-------+
+|        | False |  TN   |  FP   |
+| Actual +-------+-------+-------+
+|        | True  |  FN   |  TP   |
++--------+-------+-------+-------+
+
+If we substitute the actual numbers, we get the confusion table:
+
++----------------+---------------+
+|                |  Predictions  |
+|                |               |
+|                +-------+-------+
+|                | False | True  |
++--------+-------+-------+-------+
+|        | False | 1202  |  172  |
+| Actual +-------+-------+-------+
+|        | True  |  197  |  289  |
++--------+-------+-------+-------+
+
+We can easily do this in Numpy:
+
+#+begin_src python :results silent
+  t = 0.5
+  predict_churn = (y_pred >= t)
+  predict_no_churn = (y_pred < t)
+
+  actual_churn = (y_val == 1)
+  actual_no_churn = (y_val == 0)
+
+  true_positive = (predict_churn & actual_churn).sum()
+  false_positive = (predict_churn & actual_no_churn).sum()
+
+  false_negative = (predict_no_churn & actual_churn).sum()
+  true_negative = (predict_no_churn & actual_no_churn).sum()
+
+  confusion_table = np.array(
+      [[true_negative, false_positive],
+       [false_negative, true_positive]])
+
+  confusion_table = confusion_table / confusion_table.sum()
+#+end_src
+
+Since we only have 0 and 1 in the lists of true/false positives and negatives,
+summing them gives the number of items in them. Summing the confusion table
+itself gives the total number of items.
+
+#+begin_src python
+  confusion_table.round(3)
+#+end_src
+
+#+RESULTS:
+| 0.645 | 0.091 |
+| 0.114 |  0.15 |
+
+Let us plug these values into the table above, for a better overview:
+
++----------------+---------------+
+|                |  Predictions  |
+|                |               |
+|                +-------+-------+
+|                | False | True  |
++--------+-------+-------+-------+
+|        | False | 0.645 | 0.091 |
+| Actual +-------+-------+-------+
+|        | True  | 0.114 | 0.15  |
++--------+-------+-------+-------+
+
+The model is fairly good at predicting non-churning (65% of predictions are true
+negatives), but there are quite a few mistakes of both types (9% and 11%).
+
+#+begin_remark
+Note that 65% here does not mean that 65% percent of non-churners are predicted
+correctly. It means that of the predictions made, 65% are true negatives. The
+percentage of non-churners is 65+9=74%; of these, 65/74*100=87.8% was predicted
+correctly.
+
+Similarly, the percentage of churners is 11+15=26%; of these 15/26*100=60% was
+predicted correctly.
+#+end_remark
+
+we can calculate an accuracy score for the model based on these numbers in the
+following way:
+
+accuracy = (TN + TP) / (TN + TP + FN + FP)
+
+which gives us:
+
+#+begin_src python
+  round((true_negative + true_positive) /
+        (true_negative + true_positive + false_negative + false_positive), 2)
+#+end_src
+
+#+RESULTS:
+: 0.8
+
+*** Precision and recall
+
+Accuracy is not a very good metric for imbalanced datasets. Instead, one can use
+*precision* and *recall*, which are both calculated from the confusion table.
+
+*Precision* is the fraction of the true positives in relation of all positive
+predictions:
+
+P = TP / (TP + FP)
+
+In our case:
+
+#+begin_src python
+  round(true_positive / (true_positive + false_positive), 2)
+#+end_src
+
+#+RESULTS:
+: 0.62
+
+*Recall* is the fraction of true positives in relation to all positives:
+
+R = TP / (TP + FN)
+
+In our case:
+
+#+begin_src python
+  round(true_positive / (true_positive + false_negative), 2)
+#+end_src
+
+#+RESULTS:
+: 0.57
+
+Neither precision nor recall take true negatives into account. In imbalanced
+datasets, these are usually the largest group (in our case, they constitute 64.5%
+of all predictions), but at the same time, they are usually not very
+interesting.
+
+The reason for this is that we are trying to predict who is going to churn. We
+may make two kinds of mistakes:
+
+- Predict someone is going to churn when they weren't; these are false positives.
+- Fail to predict someone who is going to churn; these are false negatives.
+
+These are the two errors that precision and recall help us quantify. True
+negatives are not interesting to us because we weren't going to do anything with
+them anyway.
+
+While 80% accuracy may seem quite good, precision and recall tell us that the
+model makes quite a few mistakes. This is not necessarily a deal breaker, as
+errors are expected. At least we have a better idea of how the model performs.
+
 
 
 * COMMENT Local Variables
