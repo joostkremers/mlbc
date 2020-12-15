@@ -3546,6 +3546,130 @@ model makes quite a few mistakes. This is not necessarily a deal breaker, as
 errors are expected. At least we have a better idea of how the model performs.
 
 
+*** ROC curve and AUC score
+
+Precision and recall can only assess a model at one particular threshold. ROC
+curve and AUC score are metrics that can be used to assess a model across all
+possible threshold values.
+
+**** ROC curve
+
+ROC stands for "receiver operating characteristics"; it's a metric designed to
+asses how well a detector can separate two signals: True and False. For this we
+need two metrics: *true positive rate (TPR)* and *false positive rate (FPR)*:
+
+- FPR: fraction of false positives among all negative examples.
+- TPR: fraction of true positives among all positive examples.
+
+They can be calculated on the basis of the confusion table:
+
+FPR = FP / (FP + TN)
+
+TPR = TP / (TP + FN)
+
+FPR involves the first row of the table, TPR involves the second row.
+
+For our model, these values are:
+
+FPR = 172 / 1374 = 12.5%
+
+TPR = 289 / 486 = 59%
+
+#+begin_remark
+Note, these values are taken directly from the book. In our model, they might
+vary slightly.
+#+end_remark
+
+FPR is the fraction of users that we predicted would churn among everybody that
+didn't churn. A small value for FPR indicates that the model is good, since it
+has few false positives.
+
+TPR is the fraction of users that we predicted would churn among everybody that
+actually churned. Note that this is the same as recall, so a higher value is
+better.
+
+To use these values as metrics, we need to calculate them at many different thresholds.
+
+**** Evaluating a model at multiple thresholds
+
+Let us evaluate the model at different thresholds:
+
+#+begin_src python
+  scores = []
+
+  thresholds = np.linspace(0, 1, 101)
+
+  for t in thresholds:
+      tp = ((y_pred >= t) & (y_val == 1)).sum()
+      fp = ((y_pred >= t) & (y_val == 0)).sum()
+      fn = ((y_pred < t) & (y_val == 1)).sum()
+      tn = ((y_pred < t) & (y_val == 0)).sum()
+      scores.append((t, tp, fp, fn, tn))
+
+  df_scores = pd.DataFrame(scores)
+  df_scores.columns = ['threshold', 'tp', 'fp', 'fn', 'tn']
+
+  df_scores[::10]
+#+end_src
+
+#+RESULTS:
+#+begin_example
+     threshold   tp   fp   fn   tn
+0          0.0  297  830    0    0
+10         0.1  274  445   23  385
+20         0.2  247  305   50  525
+30         0.3  220  211   77  619
+40         0.4  197  154  100  676
+50         0.5  169  103  128  727
+60         0.6  121   63  176  767
+70         0.7   71   27  226  803
+80         0.8   17    3  280  827
+90         0.9    0    0  297  830
+100        1.0    0    0  297  830
+#+end_example
+
+Now we can compute the TPR and FPR scores for all values at once:
+
+#+begin_src python :results silent
+  df_scores['tpr'] = df_scores.tp / (df_scores.tp + df_scores.fn)
+  df_scores['fpr'] = df_scores.fp / (df_scores.fp + df_scores.tn)
+#+end_src
+
+#+begin_src python
+  df_scores[::10]
+#+end_src
+
+#+RESULTS:
+#+begin_example
+     threshold   tp   fp   fn   tn       tpr       fpr
+0          0.0  297  830    0    0  1.000000  1.000000
+10         0.1  274  445   23  385  0.922559  0.536145
+20         0.2  247  305   50  525  0.831650  0.367470
+30         0.3  220  211   77  619  0.740741  0.254217
+40         0.4  197  154  100  676  0.663300  0.185542
+50         0.5  169  103  128  727  0.569024  0.124096
+60         0.6  121   63  176  767  0.407407  0.075904
+70         0.7   71   27  226  803  0.239057  0.032530
+80         0.8   17    3  280  827  0.057239  0.003614
+90         0.9    0    0  297  830  0.000000  0.000000
+100        1.0    0    0  297  830  0.000000  0.000000
+#+end_example
+
+We can plot them:
+
+#+begin_src python :results file figures/figure4-01.png
+  from matplotlib import pyplot as plt
+
+  plt.clf()
+  plt.plot(df_scores.threshold, df_scores.tpr, label='TPR')
+  plt.plot(df_scores.threshold, df_scores.fpr, label='FPR')
+  plt.legend()
+  plt.savefig('figures/figure4-01.png')
+  'figures/figure4-01.png'
+#+end_src
+
+#+RESULTS:
+[[file:figures/figure4-01.png]]
 
 * COMMENT Local Variables
 :PROPERTIES:
