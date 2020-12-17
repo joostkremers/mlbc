@@ -3545,7 +3545,6 @@ While 80% accuracy may seem quite good, precision and recall tell us that the
 model makes quite a few mistakes. This is not necessarily a deal breaker, as
 errors are expected. At least we have a better idea of how the model performs.
 
-
 *** ROC curve and AUC score
 
 Precision and recall can only assess a model at one particular threshold. ROC
@@ -3670,6 +3669,284 @@ We can plot them:
 
 #+RESULTS:
 [[file:figures/figure4-01.png]]
+
+Both TPR and FPR start at 100%: if the threshold is 0.0%, everyone is predicted to
+churn, which means that everyone that does churn is correctly predicted to churn
+(TPR is 100%) and everyone that doesn't churn is incorrectly predicted to churn
+(FPR is 100%).
+
+As the threshold grows, both rates go down, but in different ways. Ideally, the
+FPR should go down fast: the predicted churn probability should be small for
+those that do not churn. The TPR should go down slowly (or ideally not at all):
+the churn probability for those that do churn should be high.
+
+**** Random baseline model
+
+A random model outputs a random score between 0 and 1 regardless of the input
+values. Implementing it is easy. Let's first create a function to calculate TPR
+and FPR:
+
+#+begin_src python :results silent
+  def tpr_fpr_dataframe(y_val, y_pred):
+      scores = []
+
+      thresholds = np.linspace(0, 1, 101)
+
+      for t in thresholds:
+        tp = ((y_pred >= t) & (y_val == 1)).sum()
+        fp = ((y_pred >= t) & (y_val == 0)).sum()
+        fn = ((y_pred < t) & (y_val == 1)).sum()
+        tn = ((y_pred < t) & (y_val == 0)).sum()
+        scores.append((t, tp, fp, fn, tn))
+
+      df_scores = pd.DataFrame(scores)
+      df_scores.columns = ['threshold', 'tp', 'fp', 'fn', 'tn']
+
+      df_scores['tpr'] = df_scores.tp / (df_scores.tp + df_scores.fn)
+      df_scores['fpr'] = df_scores.fp / (df_scores.fp + df_scores.tn)
+
+      return df_scores
+#+end_src
+
+Now the model:
+
+#+begin_src python
+  np.random.seed(1) # fix random seed for reproducibility
+  y_rand = np.random.uniform(0, 1, size=len(y_val))
+  df_rand = tpr_fpr_dataframe(y_val, y_rand)
+  df_rand[::10]
+#+end_src
+
+#+RESULTS:
+#+begin_example
+     threshold   tp   fp   fn   tn       tpr       fpr
+0          0.0  297  830    0    0  1.000000  1.000000
+10         0.1  268  745   29   85  0.902357  0.897590
+20         0.2  235  662   62  168  0.791246  0.797590
+30         0.3  200  591   97  239  0.673401  0.712048
+40         0.4  167  523  130  307  0.562290  0.630120
+50         0.5  138  436  159  394  0.464646  0.525301
+60         0.6  105  348  192  482  0.353535  0.419277
+70         0.7   83  254  214  576  0.279461  0.306024
+80         0.8   49  177  248  653  0.164983  0.213253
+90         0.9   31   81  266  749  0.104377  0.097590
+100        1.0    0    0  297  830  0.000000  0.000000
+#+end_example
+
+Let's plot them:
+
+#+begin_src python :results file figures/figure4-02.png
+  from matplotlib import pyplot as plt
+
+  plt.clf()
+  plt.plot(df_rand.threshold, df_rand.tpr, label='TPR')
+  plt.plot(df_rand.threshold, df_rand.fpr, label='FPR')
+  plt.legend()
+  plt.savefig('figures/figure4-02.png')
+  'figures/figure4-02.png'
+#+end_src
+
+#+RESULTS:
+[[file:figures/figure4-02.png]]
+
+
+With a random model, both TPR and FPR decrease in a straight line: at a
+threshold of e.g., 0.4, the model predicts 40% non-churn and 60% churn. Now,
+both TPR and FPR are at 60%: TPR is at 60% because 60% of customers are
+correctly classified as churning; FPR is at 60% because 60% of non-churning
+customers are incorrectly predicted as churning.
+
+**** The ideal model
+
+The ideal model always makes correct predictions. We assume an *ideal ranking*
+model, which always scores churning customers higher than non-churning
+customers. If we sort such a model, non-churning customers always precede
+churning customers.
+
+To create such a model, we can create an ordered set of target variables and a
+set of predictions that goes from 0 to 1:
+
+#+begin_src python :results silent
+  num_neg = (y_val == 0).sum()
+  num_pos = (y_val == 1).sum()
+
+  y_ideal = np.repeat([0, 1], [num_neg, num_pos])
+  y_pred_ideal = np.linspace(0, 1, num_neg + num_pos)
+
+  df_ideal = tpr_fpr_dataframe(y_ideal, y_pred_ideal)
+#+end_src
+
+#+begin_src python
+  df_ideal[::10]
+#+end_src
+
+#+RESULTS:
+#+begin_example
+     threshold   tp   fp   fn   tn       tpr       fpr
+0          0.0  297  830    0    0  1.000000  1.000000
+10         0.1  297  717    0  113  1.000000  0.863855
+20         0.2  297  604    0  226  1.000000  0.727711
+30         0.3  297  492    0  338  1.000000  0.592771
+40         0.4  297  379    0  451  1.000000  0.456627
+50         0.5  297  267    0  563  1.000000  0.321687
+60         0.6  297  154    0  676  1.000000  0.185542
+70         0.7  297   41    0  789  1.000000  0.049398
+80         0.8  226    0   71  830  0.760943  0.000000
+90         0.9  113    0  184  830  0.380471  0.000000
+100        1.0    1    0  296  830  0.003367  0.000000
+#+end_example
+
+#+begin_src python :results file figures/figure4-03.png
+  from matplotlib import pyplot as plt
+
+  plt.clf()
+  plt.plot(df_ideal.threshold, df_ideal.tpr, label='TPR')
+  plt.plot(df_ideal.threshold, df_ideal.fpr, label='FPR')
+  plt.legend()
+  plt.savefig('figures/figure4-03.png')
+  'figures/figure4-03.png'
+#+end_src
+
+#+RESULTS:
+[[file:figures/figure4-03.png]]
+
+At a threshold of .74, the model flips: below it, we always correctly classify
+all churning customers as churning, so that TPR is at 100%. At the same time,
+some non-churning customers are classified as churning, so FPR is >0%.
+
+The threshold of 0.74 is the idea situation, where all churning customers are
+correctly classified as churning and no false positives occur.
+
+At thresholds higher than 0.74, all non-churning customers are correctly
+classified, hence FPR is 0%. But we start incorrectly classifying churning
+customers as non-churning.
+
+**** ROC curve
+
+To get the ROC curve, we plot the TPR and FPR against each other:
+
+#+begin_src python :results file figures/figure4-04.png
+  plt.clf()
+
+  plt.figure(figsize=(5, 5)) # make the plot square
+
+  plt.plot(df_scores.fpr, df_scores.tpr, label='Model')
+  plt.plot(df_rand.fpr, df_rand.tpr, label='Random')
+  plt.plot(df_ideal.fpr, df_ideal.tpr, label='Ideal')
+
+  plt.xlabel('False Positive Rate')
+  plt.ylabel('True Positive Rate')
+
+  plt.legend()
+
+  plt.savefig('figures/figure4-04.png')
+  'figures/figure4-04.png'
+#+end_src
+
+#+RESULTS:
+[[file:figures/figure4-04.png]]
+
+In the random model, the ROC curve is more or less a straight line. In the ideal
+model, the TPR first goes up to 100% and then the FPR goes up to 100%, giving
+the pattern shown.
+
+In an actual model, the ROC curve should always be between these two lines. The
+closer to the idea curve, the better.
+
+Note that we do not need to generate the ideal and random models every time,
+because their ROC curves are always the same. It's common to include a simple
+straight line to represent the random model in a plot, the ideal curve is
+usually left out. The position (0,1) is simply called the "ideal spot".
+
+So we only need the following code:
+
+#+begin_src python :results file figures/figure4-05.png
+  plt.clf()
+
+  plt.figure(figsize=(5, 5)) # make the plot square
+
+  plt.plot(df_scores.fpr, df_scores.tpr)
+  plt.plot([0,1], [0, 1])
+
+  plt.xlabel('False Positive Rate')
+  plt.ylabel('True Positive Rate')
+
+  plt.savefig('figures/figure4-05.png')
+  'figures/figure4-05.png'
+
+#+end_src
+
+#+RESULTS:
+[[file:figures/figure4-05.png]]
+
+Obviously, Scikit-learn can compute the ROC curve for us:
+
+#+begin_src python :results file figures/figure4-06.png
+  from sklearn.metrics import roc_curve
+
+  fpr, tpr, thresholds = roc_curve(y_val, y_pred)
+
+  plt.clf()
+  plt.figure(figsize=(5, 5))
+  plt.plot(fpr, tpr)
+  plt.plot([0,1], [0,1])
+
+  plt.xlabel('False Positive Rate')
+  plt.ylabel('True Positive Rate')
+
+  plt.savefig('figures/figure4-06.png')
+  'figures/figure4-06.png'
+#+end_src
+
+#+RESULTS:
+[[file:figures/figure4-06.png]]
+
+This curve is identical to the one above.
+
+By plotting two models on the same plot, it's easy to see which of the two is
+better. The one that is closer to the ideal curve is the better model.
+
+**** The AUC
+
+The AUC (*area under curve*) is a measure for the quality of a model. It
+quantifies how close the ROC curve is to the ideal model.
+
+If we take the area of the plot to be 1✕1, the AUC for the ideal model is 1
+(i.e., the full area), while the AUC of the random model is 0.5. Any actual
+model should have an AUC between 0.5 and 1, with higher values being better. 0.9
+indicates a fairly good model, 0.8 is OK, 0.7 is not very performant and 0.6 is
+poor.
+
+The AUC can be computed using the =auc= function from =sklearn.metrics=:
+
+#+begin_src python
+  from sklearn.metrics import auc
+  auc(df_scores.fpr, df_scores.tpr)
+#+end_src
+
+#+RESULTS:
+: 0.8217577380227983
+
+An AUC of 0.82 is fairly good.
+
+Scikit-learn also provides a function that takes care of computing the TPR and
+FPR: =roc_auc_score=:
+
+ #+begin_src python
+   from sklearn.metrics import roc_auc_score
+   roc_auc_score(y_val, y_pred)
+ #+end_src
+
+ #+RESULTS:
+ : 0.8213804713804713
+
+The AUC has a nice probabilistic interpretation: it's the probability that a
+randomly selected positive example has a higher score than a randomly selected
+negative example.
+
+*** Parameter tuning
+
+
 
 * COMMENT Local Variables
 :PROPERTIES:
