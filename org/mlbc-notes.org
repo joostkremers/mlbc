@@ -3946,6 +3946,156 @@ negative example.
 
 *** Parameter tuning
 
+The validation scheme used in the previous sections is a so-called hold-out
+validation scheme. This means that part of the data is kept back for validation.
+This, however, means that we validate the model on the held-out data. it doesn't
+guarantee that it works well for other data points.
+
+**** K-fold cross validation
+
+If we split the data set into, e.g., three parts, we can train the model on two
+parts and validate on the third and repeat this process three times. This yields
+three different validation scores.
+
+To make training and validation easier, we create functions to perform these
+tasks:
+
+#+begin_src python :results silent
+  def train(df, y):
+      cat = df[categorical + numerical].to_dict('records')
+
+      dv = DictVectorizer(sparse=False)
+      dv.fit(cat)
+
+      X = dv.transform(cat)
+
+      model = LogisticRegression(solver='liblinear')
+      model.fit(X, y)
+
+      return dv, model
+
+
+  def predict(df, dv, model):
+      cat = df[categorical + numerical].to_dict('records')
+
+      X = dv.transform(cat)
+      y_pred = model.predict_proba(X)[:, 1]
+
+      return y_pred
+#+end_src
+
+Scikit-learn provides a class for K-fold cross validation:
+
+#+begin_src python :results silent
+  from sklearn.model_selection import KFold
+
+  kfold = KFold(n_splits=10, shuffle=True, random_state=1)
+
+  aucs = []
+
+  for train_idx, val_idx in kfold.split(df_train_full):
+      df_train = df_train_full.iloc[train_idx]
+      df_val = df_train_full.iloc[val_idx]
+
+      y_train = df_train.churn.values
+      y_val = df_val.churn.values
+
+      dv, model = train(df_train, y_train)
+      y_pred = predict(df_val, dv, model)
+
+      auc = roc_auc_score(y_val, y_pred)
+      aucs.append(auc)
+#+end_src
+
+#+begin_src python
+  aucs
+#+end_src
+
+#+RESULTS:
+| 0.8518518518518519 | 0.8418626237623762 | 0.8565686095377307 | 0.8287630647683318 | 0.8271557071960298 | 0.838061938061938 | 0.8386844676001303 | 0.8277751423149905 | 0.8425818882466282 | 0.856912372693355 |
+
+With a list of AUCs, we can do some statistics:
+
+#+begin_src python :results output
+  print('auc = %0.3f ± %0.3f' % (np.mean(aucs), np.std(aucs)))
+#+end_src
+
+#+RESULTS:
+: auc = 0.841 ± 0.011
+
+This gives us an idea of the average performance of the model and also of its
+volatility: how far the model may deviate from its average performance. The
+smaller the deviations, the more stable the model.
+
+**** Finding best parameters
+
+K-Fold cross validation can be used to fine-tune parameters: train the model
+with different parameters and use K-fold cross validation to determine the best
+set of parameters.
+
+As an example, the logistic regression model can take a parameter =C= that sets
+the amount of regularisation. We can experiment with varying this variable.
+First, we modify =train= to take an additional argument =C=:
+
+#+begin_src python :results silent
+  def train(df, y, C):
+      cat = df[categorical + numerical].to_dict('records')
+
+      dv = DictVectorizer(sparse=False)
+      dv.fit(cat)
+
+      X = dv.transform(cat)
+
+      model = LogisticRegression(solver='liblinear', C=C)
+      model.fit(X, y)
+
+      return dv, model
+#+end_src
+
+We can now loop over different values for C:
+
+#+begin_src python :results silent
+  nfolds = 10
+  kfold = KFold(n_splits=nfolds, shuffle=True, random_state=1)
+
+  Cs = []
+
+  for C in [0.001, 0.01, 0.1, 0.5, 1, 10]:
+      aucs = []
+
+      for train_idx, val_idx in kfold.split(df_train_full):
+          df_train = df_train_full.iloc[train_idx]
+          df_val = df_train_full.iloc[val_idx]
+
+          y_train = df_train.churn.values
+          y_val = df_val.churn.values
+
+          dv, model = train(df_train, y_train, C=C)
+          y_pred = predict(df_val, dv, model)
+
+          auc = roc_auc_score(y_val, y_pred)
+          aucs.append(auc)
+
+      Cs.append([C, np.mean(aucs), np.std(aucs)])
+
+  df_Cs = pd.DataFrame(Cs)
+  df_Cs.columns = ['C', 'mean', 'std dev']
+#+end_src
+
+Let's check the results:
+
+#+begin_src python
+  df_Cs
+#+end_src
+
+#+RESULTS:
+:         C      mean   std dev
+: 0   0.001  0.820514  0.017031
+: 1   0.010  0.838345  0.012119
+: 2   0.100  0.840465  0.011287
+: 3   0.500  0.841219  0.010913
+: 4   1.000  0.841022  0.010709
+: 5  10.000  0.834954  0.009990
 
 
 * COMMENT Local Variables
