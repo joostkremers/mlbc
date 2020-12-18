@@ -2186,7 +2186,7 @@ touched by this method.
 First, create a dictionary from the training set:
 
 #+begin_src python :results silent
-  train_dict = df_train[categorical + numerical].to_dict('rows')
+  train_dict = df_train[categorical + numerical].to_dict('records')
 #+end_src
 
 #+begin_src python :results output
@@ -2309,7 +2309,7 @@ Let us test the model on the validation set. First, we need to apply the same
 feature engineering to the validation set:
 
 #+begin_src python :results silent
-  val_dict = df_val[categorical + numerical].to_dict('rows')
+  val_dict = df_val[categorical + numerical].to_dict('records')
   X_val = dv.transform(val_dict)
 #+end_src
 
@@ -3115,7 +3115,7 @@ First try with all features:
 #+begin_src python :results silent
   from sklearn.feature_extraction import DictVectorizer
 
-  train_dict = df_train[numerical + categorical].to_dict('rows')
+  train_dict = df_train[numerical + categorical].to_dict('records')
   dv = DictVectorizer(sparse=False)
   dv.fit(train_dict)
 #+end_src
@@ -3152,7 +3152,7 @@ a prediction of =True=. This is still with all the features.
 Now check the validation set:
 
 #+begin_src python
-  val_dict = df_val[numerical + categorical].to_dict('rows')
+  val_dict = df_val[numerical + categorical].to_dict('records')
   X_val = dv.transform(val_dict)
   y_val_pred = model.predict_proba(X_val)[:,1]
   conversion = y_val_pred >= 0.5
@@ -3170,8 +3170,8 @@ training set.
 We create a new vectorizer with only the features that we selected above.
 
 #+begin_src python :results output
-  train_dict = df_train[numerical_included + categorical_included].to_dict('rows')
-  val_dict = df_val[numerical_included + categorical_included].to_dict('rows')
+  train_dict = df_train[numerical_included + categorical_included].to_dict('records')
+  val_dict = df_val[numerical_included + categorical_included].to_dict('records')
   v = DictVectorizer(sparse=False)
   dv.fit(train_dict)
 
@@ -3215,8 +3215,8 @@ Let's try again with yet fewer features:
 #+end_src
 
 #+begin_src python :results output
-  train_dict = df_train[numerical_included + categorical_included].to_dict('rows')
-  val_dict = df_val[numerical_included + categorical_included].to_dict('rows')
+  train_dict = df_train[numerical_included + categorical_included].to_dict('records')
+  val_dict = df_val[numerical_included + categorical_included].to_dict('records')
   v = DictVectorizer(sparse=False)
   dv.fit(train_dict)
 
@@ -3294,7 +3294,7 @@ Nope, still doesn't seem to do any better.
                  'contract', 'paperlessbilling', 'paymentmethod']
   numerical = ['tenure', 'monthlycharges', 'totalcharges']
 
-  train_dict = df_train[categorical + numerical].to_dict('rows')
+  train_dict = df_train[categorical + numerical].to_dict('records')
 
   dv = DictVectorizer(sparse=False)
   dv.fit(train_dict)
@@ -3304,7 +3304,7 @@ Nope, still doesn't seem to do any better.
   model = LogisticRegression(solver='liblinear', random_state=1)
   model.fit(X_train, y_train)
 
-  val_dict = df_val[categorical + numerical].to_dict('rows')
+  val_dict = df_val[categorical + numerical].to_dict('records')
   X_val = dv.transform(val_dict)
 #+end_src
 
