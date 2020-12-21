@@ -4097,6 +4097,36 @@ Let's check the results:
 : 4   1.000  0.841    0.011
 : 5  10.000  0.835    0.010
 
+In choosing a regularisation amount to use, one should look at the highest
+possible mean but at the same time at the lowest possible standard deviation.
+The numbers in the book deviate a bit from the ones here, but as in the book,
+0.5 seems to be the best choice.
+
+ #+begin_remark
+ 1.0 gives equal results, but I think it's best to keep C as small as possible.
+ Perhaps because with a smaller C, training is quicker.
+ #+end_remark
+
+As a final step, let us test the model with C=0.5 against the test data, which
+we've held out entirely:
+
+#+begin_src python :results output
+  y_train = df_train_full.churn.values
+  y_test = df_test.churn.values
+
+  dv, model = train(df_train_full, y_train, C=0.5)
+  y_pred = predict(df_test, dv, model)
+
+  auc = roc_auc_score(y_test, y_pred)
+
+  print('auc = %.3f' % auc)
+#+end_src
+
+#+RESULTS:
+: auc = 0.857
+
+The score here is even slightly better, but that may be random chance. It's not
+something to worry about.
 
 * COMMENT Local Variables
 :PROPERTIES:
