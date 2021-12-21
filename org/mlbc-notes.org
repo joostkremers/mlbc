@@ -6,6 +6,7 @@
 #+HTML_HEAD: <script type="text/javascript" src="styles/lib/js/bootstrap.min.js"></script>
 #+HTML_HEAD: <script type="text/javascript" src="styles/lib/js/jquery.stickytableheaders.min.js"></script>
 #+HTML_HEAD: <script type="text/javascript" src="styles/readtheorg_theme/js/readtheorg.js"></script>
+#+STARTUP: overview
 
 * Introduction
 
