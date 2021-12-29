@@ -3315,6 +3315,8 @@ Nope, still doesn't seem to do any better.
   X_val = dv.transform(val_dict)
 #+end_src
 
+*** Classification accuracy
+
 Calculate the accuracy:
 
 #+begin_src python
