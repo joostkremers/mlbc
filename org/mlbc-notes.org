@@ -1566,9 +1566,10 @@ That's a much better result, it seems.
 *** Imports
 
 #+begin_src python :results silent
-  from mlutils import *
+  # from mlutils import *
 
   import seaborn as sns
+  import pandas as pd
   from matplotlib import pyplot as plt
 #+end_src
 
