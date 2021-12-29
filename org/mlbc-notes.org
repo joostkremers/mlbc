@@ -3338,7 +3338,7 @@ Scikit-learn also offers various metrics to evaluate a model:
   from sklearn.metrics import accuracy_score
 #+end_src
 
-Now lets loop over several threshold values to see which gives the best accuracy:
+Now let's loop over several threshold values to see which gives the best accuracy:
 
 #+begin_src python :results output
   thresholds = np.linspace(0, 1, 11)
