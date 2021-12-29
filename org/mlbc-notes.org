@@ -20,6 +20,9 @@ Run the code in a virtual environment:
   (pyvenv-workon "mlbc-IuAdIQfB-py3.9")
 #+end_src
 
+To access the utility functions, first tangle the file with =C-c C-v t=. This
+creates a file =mlutils.py= in the current directory, which can then be imported
+(from).
 
 * Chapter 2: Machine Learning for Regression
 
