@@ -3951,7 +3951,14 @@ FPR: =roc_auc_score=:
 
 The AUC has a nice probabilistic interpretation: it's the probability that a
 randomly selected positive example has a higher score than a randomly selected
-negative example.
+negative example. This is an useful metric, because it allows us to understand
+the model in fairly simple terms: an AUC of 1.0 means that all positive examples
+are ranked higher than all negative examples. For such a model, one can find a
+perfect threshold: one that always makes the correct prediction.
+
+For a model that makes random predictions, the AUC is 0.5: the chance that a
+positive example is ranked higher than a negative example is just as large as
+the other way around.
 
 *** Parameter tuning
 
@@ -4033,7 +4040,7 @@ With a list of AUCs, we can do some statistics:
 : auc = 0.841 ± 0.011
 
 This gives us an idea of the average performance of the model and also of its
-volatility: how far the model may deviate from its average performance. The
+*volatility*: how far the model may deviate from its average performance. The
 smaller the deviations, the more stable the model.
 
 **** Finding best parameters
