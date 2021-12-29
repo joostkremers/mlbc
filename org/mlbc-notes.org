@@ -24,6 +24,7 @@ To access the utility functions, first tangle this file with =C-c C-v t=. This
 creates a file =mlutils.py= in the current directory, which can then be imported
 (from).
 
+
 * Chapter 2: Machine Learning for Regression
 
 ** Notes to chapter 2                                             :noexport:
