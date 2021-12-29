@@ -399,7 +399,9 @@ Computing the RMSE for the current model:
 #+RESULTS:
 : 0.7554192603920132
 
-To compare the model with others, this measure should be computed on the
+*** Validating the model
+
+To compare the model with other models, this measure should be computed on the
 validation set, not the training set:
 
 #+begin_src python
