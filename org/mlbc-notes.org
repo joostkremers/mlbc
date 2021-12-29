@@ -484,6 +484,8 @@ Training and evaluation can now be done as follows:
 #+RESULTS:
 : validation: 0.5172055461058327
 
+Note: smaller values for RMSE are better, of course.
+
 Plotting the distribution of the predicted values:
 
 #+begin_src python :results file figures/figure2-05.png
