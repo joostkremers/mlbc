@@ -3488,7 +3488,7 @@ Similarly, the percentage of churners is 11+15=26%; of these 15/26*100=60% was
 predicted correctly.
 #+end_remark
 
-we can calculate an accuracy score for the model based on these numbers in the
+We can calculate an accuracy score for the model based on these numbers in the
 following way:
 
 accuracy = (TN + TP) / (TN + TP + FN + FP)
