@@ -2199,30 +2199,30 @@ First, create a dictionary from the training set:
 #+begin_src python :results output
   import pprint
 
-  pprint.pprint(train_dict[0])
+  pprint.pprint(train_dict[1])
 #+end_src
 
 #+RESULTS:
 #+begin_example
-{'contract': 'month-to-month',
+{'contract': 'two_year',
  'dependents': 'no',
- 'deviceprotection': 'no',
- 'gender': 'male',
+ 'deviceprotection': 'yes',
+ 'gender': 'female',
  'internetservice': 'dsl',
- 'monthlycharges': 44.65,
- 'multiplelines': 'no_phone_service',
+ 'monthlycharges': 73.5,
+ 'multiplelines': 'no',
  'onlinebackup': 'yes',
  'onlinesecurity': 'no',
  'paperlessbilling': 'yes',
- 'partner': 'no',
- 'paymentmethod': 'mailed_check',
- 'phoneservice': 'no',
+ 'partner': 'yes',
+ 'paymentmethod': 'credit_card_(automatic)',
+ 'phoneservice': 'yes',
  'seniorcitizen': 0,
  'streamingmovies': 'yes',
- 'streamingtv': 'no',
- 'techsupport': 'yes',
- 'tenure': 1,
- 'totalcharges': 44.65}
+ 'streamingtv': 'yes',
+ 'techsupport': 'no',
+ 'tenure': 26,
+ 'totalcharges': 1905.7}
 #+end_example
 
 The =DictVectorizer= needs to be fit to the list of dictionaries:
@@ -2245,11 +2245,11 @@ alone. We can now transform the list of dictionaries:
 Check the result:
 
 #+begin_src python
-  X_train[0]
+  X_train[1]
 #+end_src
 
 #+RESULTS:
-| 1 | 0 | 0 | 1 | 0 | 1 | 0 | 0 | 0 | 1 | 1 | 0 | 0 | 44.65 | 0 | 1 | 0 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 1 | 44.65 |
+| 0.0 | 0.0 | 1.0 | 1.0 | 0.0 | 0.0 | 0.0 | 1.0 | 1.0 | 0.0 | 1.0 | 0.0 | 0.0 | 73.5 | 1.0 | 0.0 | 0.0 | 0.0 | 0.0 | 1.0 | 1.0 | 0.0 | 0.0 | 0.0 | 1.0 | 0.0 | 1.0 | 0.0 | 1.0 | 0.0 | 0.0 | 0.0 | 1.0 | 0.0 | 0.0 | 0.0 | 1.0 | 0.0 | 0.0 | 1.0 | 1.0 | 0.0 | 0.0 | 26.0 | 1905.7 |
 
 *** Machine learning for classification
 
