@@ -4149,6 +4149,105 @@ The score here is even slightly better, but that may be random chance. It's not
 something to worry about.
 
 
+** Exercises
+:PROPERTIES:
+:header-args:python+: :session ch4-notes
+:END:
+
+*** Calculate and plot precision and recall for different threshold values.
+
+The following code (copied from above) calculates the values of the confusion
+matrix for different thresholds:
+
+#+begin_src python
+  y_pred = model.predict_proba(X_val)[:,1]
+
+  scores = []
+
+  thresholds = np.linspace(0, 1, 101)
+
+  for t in thresholds:
+      tp = ((y_pred >= t) & (y_val == 1)).sum()
+      fp = ((y_pred >= t) & (y_val == 0)).sum()
+      fn = ((y_pred < t) & (y_val == 1)).sum()
+      tn = ((y_pred < t) & (y_val == 0)).sum()
+      scores.append((t, tp, fp, fn, tn))
+
+  df_scores = pd.DataFrame(scores)
+  df_scores.columns = ['threshold', 'tp', 'fp', 'fn', 'tn']
+
+  df_scores[::10]
+#+end_src
+
+#+RESULTS:
+#+begin_example
+     threshold   tp   fp   fn   tn
+0          0.0  297  830    0    0
+10         0.1  274  445   23  385
+20         0.2  247  305   50  525
+30         0.3  220  211   77  619
+40         0.4  197  154  100  676
+50         0.5  169  103  128  727
+60         0.6  121   62  176  768
+70         0.7   71   27  226  803
+80         0.8   17    3  280  827
+90         0.9    0    0  297  830
+100        1.0    0    0  297  830
+#+end_example
+
+Calculate precision and recall and add them to the dataframe:
+
+#+begin_src python
+  df_scores['precision'] = df_scores['tp'] / (df_scores['tp'] + df_scores['fp'])
+  df_scores['recall'] = df_scores['tp'] / (df_scores['tp'] + df_scores['fn'])
+
+  df_scores[::10]
+#+end_src
+
+#+RESULTS:
+#+begin_example
+     threshold   tp   fp   fn   tn  precision    recall
+0          0.0  297  830    0    0   0.263531  1.000000
+10         0.1  274  445   23  385   0.381085  0.922559
+20         0.2  247  305   50  525   0.447464  0.831650
+30         0.3  220  211   77  619   0.510441  0.740741
+40         0.4  197  154  100  676   0.561254  0.663300
+50         0.5  169  103  128  727   0.621324  0.569024
+60         0.6  121   62  176  768   0.661202  0.407407
+70         0.7   71   27  226  803   0.724490  0.239057
+80         0.8   17    3  280  827   0.850000  0.057239
+90         0.9    0    0  297  830        NaN  0.000000
+100        1.0    0    0  297  830        NaN  0.000000
+#+end_example
+
+And plot the results:
+
+#+begin_src python :results file figures/figure4-07.png
+  from matplotlib import pyplot as plt
+
+  plt.clf()
+  plt.plot(df_scores.threshold, df_scores.precision, label='precision')
+  plt.plot(df_scores.threshold, df_scores.recall, label='recall')
+  plt.legend()
+  plt.savefig('figures/figure4-07.png')
+  'figures/figure4-07.png'
+#+end_src
+
+#+RESULTS:
+[[file:figures/figure4-07.png]]
+
+Finding the point where precision and recall intersect:
+
+#+begin_src python
+  df_scores['difference'] = (df_scores['precision'] - df_scores['recall']).abs()
+  df_scores.loc[df_scores['difference'] == min(df_scores['difference'])]
+#+end_src
+
+#+RESULTS:
+:     threshold   tp   fp   fn   tn  precision    recall  difference
+: 47       0.47  182  113  115  717   0.616949  0.612795    0.004155
+
+
 * COMMENT Local Variables
 :PROPERTIES:
 :VISIBILITY: folded
