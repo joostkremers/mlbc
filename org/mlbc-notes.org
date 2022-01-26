@@ -3331,7 +3331,7 @@ Calculate the accuracy:
 #+end_src
 
 #+RESULTS:
-: 0.795
+: 0.797
 
 Scikit-learn also offers various metrics to evaluate a model:
 
@@ -3347,22 +3347,22 @@ Now let's loop over several threshold values to see which one gives the best acc
   for t in thresholds:
       churn = y_pred >= t
       acc = accuracy_score(y_val, churn)
-      print('%0.2f %0.3f' % (t, acc))
+      print('%0.1f %0.3f' % (t, acc))
 #+end_src
 
 #+RESULTS:
 #+begin_example
-0.00 0.264
-0.10 0.585
-0.20 0.685
-0.30 0.745
-0.40 0.775
-0.50 0.795
-0.60 0.789
-0.70 0.776
-0.80 0.749
-0.90 0.736
-1.00 0.736
+0.0 0.264
+0.1 0.586
+0.2 0.684
+0.3 0.744
+0.4 0.775
+0.5 0.797
+0.6 0.788
+0.7 0.776
+0.8 0.749
+0.9 0.736
+1.0 0.736
 #+end_example
 
 A threshold value of 0.5 gives the best accuracy.
@@ -3370,7 +3370,7 @@ A threshold value of 0.5 gives the best accuracy.
 *** Dummy baseline
 
 The best our model can do is an 80% accuracy. The question is whether this is
-actually a *good* score. In order to do this, we must compare the score with
+actually a *good* score. In order to assess this, we must compare the score with
 something else, a baseline model. One option is to use a dummy baseline: a model
 that always predicts the same value.
 
@@ -3385,12 +3385,12 @@ all users. This is easy to set up:
 This simply creates an array of the same size as =y_val= with all =False=
 values. The accuracy of such a prediction against =y_val= is:
 
-#+begin_src python
-  round(accuracy_score(baseline, y_val), 3)
+#+begin_src python :results output
+  print(f"Accuracy: {round(accuracy_score(baseline, y_val), 3)}")
 #+end_src
 
 #+RESULTS:
-: 0.736
+: Accuracy: 0.736
 
 The baseline accuracy isn't that much worse than what our model predicts, so
 from the looks of it, our model isn't all that good.
@@ -3465,7 +3465,7 @@ itself gives the total number of items.
 
 #+RESULTS:
 | 0.645 | 0.091 |
-| 0.114 |  0.15 |
+| 0.112 | 0.152 |
 
 Let us plug these values into the table above, for a better overview:
 
@@ -3486,10 +3486,10 @@ negatives), but there are quite a few mistakes of both types (9% and 11%).
 #+begin_remark
 Note that 65% here does not mean that 65% percent of non-churners are predicted
 correctly. It means that of the predictions made, 65% are true negatives. The
-percentage of non-churners is 65+9=74%; of these, 65/74*100=87.8% was predicted
+percentage of non-churners is 65+9=74%; of these, 65/74*100=87.8% were predicted
 correctly.
 
-Similarly, the percentage of churners is 11+15=26%; of these 15/26*100=60% was
+Similarly, the percentage of churners is 11+15=26%; of these 15/26*100=60% were
 predicted correctly.
 #+end_remark
 
@@ -3500,13 +3500,13 @@ accuracy = (TN + TP) / (TN + TP + FN + FP)
 
 which gives us:
 
-#+begin_src python
-  round((true_negative + true_positive) /
-        (true_negative + true_positive + false_negative + false_positive), 2)
+#+begin_src python :results output
+  accuracy = (true_negative + true_positive) / (true_negative + true_positive + false_negative + false_positive)
+  print(f"Accuracy: {round(accuracy, 2)}")
 #+end_src
 
 #+RESULTS:
-: 0.8
+: Accuracy: 0.8
 
 *** Precision and recall
 
@@ -3520,12 +3520,12 @@ P = TP / (TP + FP)
 
 In our case:
 
-#+begin_src python
-  round(true_positive / (true_positive + false_positive), 2)
+#+begin_src python :results output
+  print(f"Precision: {round(true_positive / (true_positive + false_positive), 2)}")
 #+end_src
 
 #+RESULTS:
-: 0.62
+: Precision: 0.62
 
 *Recall* is the fraction of true positives in relation to all positives:
 
@@ -3533,12 +3533,12 @@ R = TP / (TP + FN)
 
 In our case:
 
-#+begin_src python
-  round(true_positive / (true_positive + false_negative), 2)
+#+begin_src python :results output
+  print(f"Recall: {round(true_positive / (true_positive + false_negative), 2)}")
 #+end_src
 
 #+RESULTS:
-: 0.57
+: Recall: 0.58
 
 Neither precision nor recall take true negatives into account. In imbalanced
 datasets, these are usually the largest group (in our case, they constitute 64.5%
@@ -3629,11 +3629,11 @@ Let us evaluate the model at different thresholds:
 #+begin_example
      threshold   tp   fp   fn   tn
 0          0.0  297  830    0    0
-10         0.1  274  445   23  385
-20         0.2  247  305   50  525
+10         0.1  274  444   23  386
+20         0.2  247  306   50  524
 30         0.3  220  211   77  619
 40         0.4  197  154  100  676
-50         0.5  169  103  128  727
+50         0.5  171  103  126  727
 60         0.6  121   63  176  767
 70         0.7   71   27  226  803
 80         0.8   17    3  280  827
@@ -3880,7 +3880,7 @@ So we only need the following code:
   plt.figure(figsize=(5, 5)) # make the plot square
 
   plt.plot(df_scores.fpr, df_scores.tpr)
-  plt.plot([0,1], [0, 1])
+  plt.plot([0, 1], [0, 1])
 
   plt.xlabel('False Positive Rate')
   plt.ylabel('True Positive Rate')
@@ -3956,7 +3956,7 @@ FPR: =roc_auc_score=:
 
 The AUC has a nice probabilistic interpretation: it's the probability that a
 randomly selected positive example has a higher score than a randomly selected
-negative example. This is an useful metric, because it allows us to understand
+negative example. This is a useful metric, because it allows us to understand
 the model in fairly simple terms: an AUC of 1.0 means that all positive examples
 are ranked higher than all negative examples. For such a model, one can find a
 perfect threshold: one that always makes the correct prediction.
