@@ -3681,15 +3681,16 @@ Now we can compute the TPR and FPR scores for all values at once:
 
 We can plot them:
 
-#+begin_src python :results file figures/figure4-01.png
+#+header :var path="figures/figure4-01.png"
+#+begin_src python :results file
   from matplotlib import pyplot as plt
 
   plt.clf()
   plt.plot(df_scores.threshold, df_scores.tpr, label='TPR')
   plt.plot(df_scores.threshold, df_scores.fpr, label='FPR')
   plt.legend()
-  plt.savefig('figures/figure4-01.png')
-  'figures/figure4-01.png'
+
+  <<savefig>>
 #+end_src
 
 #+RESULTS:
@@ -3760,15 +3761,16 @@ Now the model:
 
 Let's plot them:
 
-#+begin_src python :results file figures/figure4-02.png
+#+header :var path="figures/figure4-02.png"
+#+begin_src python :results file
   from matplotlib import pyplot as plt
 
   plt.clf()
   plt.plot(df_rand.threshold, df_rand.tpr, label='TPR')
   plt.plot(df_rand.threshold, df_rand.fpr, label='FPR')
   plt.legend()
-  plt.savefig('figures/figure4-02.png')
-  'figures/figure4-02.png'
+
+  <<savefig>>
 #+end_src
 
 #+RESULTS:
@@ -3821,15 +3823,16 @@ set of predictions that goes from 0 to 1:
 100        1.0    1    0  296  830  0.003367  0.000000
 #+end_example
 
-#+begin_src python :results file figures/figure4-03.png
+#+header :var path="figures/figure4-03.png"
+#+begin_src python :results file
   from matplotlib import pyplot as plt
 
   plt.clf()
   plt.plot(df_ideal.threshold, df_ideal.tpr, label='TPR')
   plt.plot(df_ideal.threshold, df_ideal.fpr, label='FPR')
   plt.legend()
-  plt.savefig('figures/figure4-03.png')
-  'figures/figure4-03.png'
+
+  <<savefig>
 #+end_src
 
 #+RESULTS:
@@ -3850,7 +3853,8 @@ customers as non-churning.
 
 To get the ROC curve, we plot the TPR and FPR against each other:
 
-#+begin_src python :results file figures/figure4-04.png
+#+header :var path=" figures/figure4-04.png"
+#+begin_src python :results file
   plt.clf()
 
   plt.figure(figsize=(5, 5)) # make the plot square
@@ -3864,8 +3868,7 @@ To get the ROC curve, we plot the TPR and FPR against each other:
 
   plt.legend()
 
-  plt.savefig('figures/figure4-04.png')
-  'figures/figure4-04.png'
+  <<savefig>>
 #+end_src
 
 #+RESULTS:
@@ -3885,7 +3888,8 @@ usually left out. The position (0,1) is simply called the "ideal spot".
 
 So we only need the following code:
 
-#+begin_src python :results file figures/figure4-05.png
+#+header :var path="figures/figure4-05.png"
+#+begin_src python :results file
   plt.clf()
 
   plt.figure(figsize=(5, 5)) # make the plot square
@@ -3896,9 +3900,7 @@ So we only need the following code:
   plt.xlabel('False Positive Rate')
   plt.ylabel('True Positive Rate')
 
-  plt.savefig('figures/figure4-05.png')
-  'figures/figure4-05.png'
-
+  <<savefig>>
 #+end_src
 
 #+RESULTS:
@@ -3906,7 +3908,8 @@ So we only need the following code:
 
 Obviously, Scikit-learn can compute the ROC curve for us:
 
-#+begin_src python :results file figures/figure4-06.png
+#+header :var path="figures/figure4-06.png"
+#+begin_src python :results file :noweb strip-export
   from sklearn.metrics import roc_curve
 
   fpr, tpr, thresholds = roc_curve(y_val, y_pred)
@@ -3919,8 +3922,7 @@ Obviously, Scikit-learn can compute the ROC curve for us:
   plt.xlabel('False Positive Rate')
   plt.ylabel('True Positive Rate')
 
-  plt.savefig('figures/figure4-06.png')
-  'figures/figure4-06.png'
+  <<savefig>>
 #+end_src
 
 #+RESULTS:
