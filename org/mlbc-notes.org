@@ -13,7 +13,7 @@
 
 * Setup                                                            :noexport:
 
-Run the code in a virtual environment:
+** Run the code in a virtual environment:
 
 #+begin_src emacs-lisp :results silent
   (pcase system-type
@@ -25,6 +25,17 @@ To access the utility functions, first tangle this file with =C-c C-v t=. This
 creates a file =mlutils.py= in the current directory, which can then be imported
 (from).
 
+** Image support
+
+#+NAME: savefig
+#+BEGIN_SRC python :results file :exports none
+
+  # The =path= variable must be set by the block that expands this org source code
+  # block:
+
+  plt.savefig(path)
+  path
+#+END_SRC
 
 * Chapter 2: Machine Learning for Regression
 
