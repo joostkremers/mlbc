@@ -1906,7 +1906,8 @@ Take the 'gender' feature as an example:
 : gender == female: 0.277
 : gender == male:   0.263
 
-The values for 'partner' are different:
+The difference with the global churn rate are small, so gender does not have
+much influence. The values for 'partner' are different:
 
 #+begin_src python :results output
   partner_yes = df_train_full[df_train_full.partner == 'yes'].churn.mean()
