@@ -3875,8 +3875,11 @@ To get the ROC curve, we plot the TPR and FPR against each other:
 [[file:figures/figure4-04.png]]
 
 In the random model, the ROC curve is more or less a straight line. In the ideal
-model, the TPR first goes up to 100% and then the FPR goes up to 100%, giving
-the pattern shown.
+model, the TPR is 100% and the FPR 0%, making (0,1) the ideal spot. Because in
+the calculation of the ROC curve, the TPR is 100% regardless of the FPR (we
+always 'predict' all positives to be positives), we get the curve as shown.
+(Note, for the ideal model, the curve does not really make sense; only the ideal
+spot at (0,1) does.)
 
 In an actual model, the ROC curve should always be between these two lines. The
 closer to the idea curve, the better.
