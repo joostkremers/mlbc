@@ -3294,6 +3294,8 @@ Nope, still doesn't seem to do any better.
   from sklearn.feature_extraction import DictVectorizer
   from sklearn.linear_model import LogisticRegression
 
+  from matplotlib import pyplot as plt
+
   from mlutils import clean_alphanum_data
 
   df = pd.read_csv('../data/telco-customer-churn.csv')
@@ -3684,8 +3686,6 @@ We can plot them:
 
 #+header :var path="figures/figure4-01.png"
 #+begin_src python :results file
-  from matplotlib import pyplot as plt
-
   plt.clf()
   plt.plot(df_scores.threshold, df_scores.tpr, label='TPR')
   plt.plot(df_scores.threshold, df_scores.fpr, label='FPR')
@@ -3764,8 +3764,6 @@ Let's plot them:
 
 #+header :var path="figures/figure4-02.png"
 #+begin_src python :results file
-  from matplotlib import pyplot as plt
-
   plt.clf()
   plt.plot(df_rand.threshold, df_rand.tpr, label='TPR')
   plt.plot(df_rand.threshold, df_rand.fpr, label='FPR')
@@ -3826,8 +3824,6 @@ set of predictions that goes from 0 to 1:
 
 #+header :var path="figures/figure4-03.png"
 #+begin_src python :results file
-  from matplotlib import pyplot as plt
-
   plt.clf()
   plt.plot(df_ideal.threshold, df_ideal.tpr, label='TPR')
   plt.plot(df_ideal.threshold, df_ideal.fpr, label='FPR')
@@ -4238,8 +4234,6 @@ Calculate precision and recall and add them to the dataframe:
 And plot the results:
 
 #+begin_src python :results file figures/figure4-07.png
-  from matplotlib import pyplot as plt
-
   plt.clf()
   plt.plot(df_scores.threshold, df_scores.precision, label='precision')
   plt.plot(df_scores.threshold, df_scores.recall, label='recall')
