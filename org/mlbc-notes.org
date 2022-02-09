@@ -1583,11 +1583,11 @@ That's a much better result, it seems.
 *** Imports
 
 #+begin_src python :results silent
-  # from mlutils import *
-
   import seaborn as sns
   import pandas as pd
   from matplotlib import pyplot as plt
+
+  from mlutils import *
 #+end_src
 
 *** Initial look at the data
