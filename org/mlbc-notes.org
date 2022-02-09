@@ -3684,8 +3684,8 @@ Now we can compute the TPR and FPR scores for all values at once:
 
 We can plot them:
 
-#+header :var path="figures/figure4-01.png"
-#+begin_src python :results file
+#+header: :var path="figures/figure4-01.png"
+#+begin_src python :results file :noweb strip-export
   plt.clf()
   plt.plot(df_scores.threshold, df_scores.tpr, label='TPR')
   plt.plot(df_scores.threshold, df_scores.fpr, label='FPR')
@@ -3762,8 +3762,8 @@ Now the model:
 
 Let's plot them:
 
-#+header :var path="figures/figure4-02.png"
-#+begin_src python :results file
+#+header: :var path="figures/figure4-02.png"
+#+begin_src python :results file :noweb strip-export
   plt.clf()
   plt.plot(df_rand.threshold, df_rand.tpr, label='TPR')
   plt.plot(df_rand.threshold, df_rand.fpr, label='FPR')
@@ -3822,8 +3822,8 @@ set of predictions that goes from 0 to 1:
 100        1.0    1    0  296  830  0.003367  0.000000
 #+end_example
 
-#+header :var path="figures/figure4-03.png"
-#+begin_src python :results file
+#+header: :var path="figures/figure4-03.png"
+#+begin_src python :results file :noweb strip-export
   plt.clf()
   plt.plot(df_ideal.threshold, df_ideal.tpr, label='TPR')
   plt.plot(df_ideal.threshold, df_ideal.fpr, label='FPR')
@@ -3850,8 +3850,8 @@ customers as non-churning.
 
 To get the ROC curve, we plot the TPR and FPR against each other:
 
-#+header :var path=" figures/figure4-04.png"
-#+begin_src python :results file
+#+header: :var path=" figures/figure4-04.png"
+#+begin_src python :results file :noweb strip-export
   plt.clf()
 
   plt.figure(figsize=(5, 5)) # make the plot square
@@ -3885,8 +3885,8 @@ usually left out. The position (0,1) is simply called the "ideal spot".
 
 So we only need the following code:
 
-#+header :var path="figures/figure4-05.png"
-#+begin_src python :results file
+#+header: :var path="figures/figure4-05.png"
+#+begin_src python :results file :noweb strip-export
   plt.clf()
 
   plt.figure(figsize=(5, 5)) # make the plot square
@@ -3905,7 +3905,7 @@ So we only need the following code:
 
 Obviously, Scikit-learn can compute the ROC curve for us:
 
-#+header :var path="figures/figure4-06.png"
+#+header: :var path="figures/figure4-06.png"
 #+begin_src python :results file :noweb strip-export
   from sklearn.metrics import roc_curve
 
