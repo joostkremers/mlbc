@@ -3691,6 +3691,9 @@ We can plot them:
   plt.plot(df_scores.threshold, df_scores.fpr, label='FPR')
   plt.legend()
 
+  plt.xlabel('Threshold')
+  plt.ylabel('Rate')
+
   <<savefig>>
 #+end_src
 
