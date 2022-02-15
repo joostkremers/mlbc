@@ -4220,7 +4220,9 @@ Calculate precision and recall and add them to the dataframe:
 100        1.0    0    0  297  830        NaN  0.000000
 #+end_example
 
-And plot the results:
+*** Precision/Recall tradeoff
+
+Plotting the results of the previous exercise:
 
 #+begin_src python :results file figures/figure4-07.png
   plt.plot(df_scores.threshold, df_scores.precision, label='precision')
