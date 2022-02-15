@@ -33,6 +33,7 @@ creates a file =mlutils.py= in the current directory, which can then be imported
   # block:
 
   plt.savefig(path)
+  plt.clf()
   path
 #+END_SRC
 
@@ -362,7 +363,6 @@ Applying the model to the training data:
 And plot the result:
 
 #+begin_src python :results file figures/figure2-04.png
-  plt.clf()
   sns.histplot(y_pred, label='pred')
   sns.histplot(y_train, label='y', color='red')
   plt.legend()
@@ -505,7 +505,6 @@ Note: smaller values for RMSE are better, of course.
 Plotting the distribution of the predicted values:
 
 #+begin_src python :results file figures/figure2-05.png
-  plt.clf()
   sns.histplot(y_pred, label='pred')
   sns.histplot(y_val, label='y', color="red")
   plt.legend()
@@ -1190,7 +1189,6 @@ again. In reality, we don't.
 
 #+begin_src python :results file figure/figure2-06.png
   y_pred = w_0 + X_train.dot(w)
-  plt.clf()
   sns.histplot(y_pred, label='pred')
   sns.histplot(y_train, label='y', color='red')
   plt.legend()
@@ -1245,7 +1243,6 @@ binary encoded features:
 
   y_pred = w_0 + X_train.dot(w)
 
-  plt.clf()
   sns.histplot(y_pred, label='pred')
   sns.histplot(y_train, label='y', color='red')
   plt.legend()
@@ -1433,7 +1430,6 @@ Let's first plot the data:
 #+end_src
 
 #+begin_src python :results file figures/figure2-09.png
-  plt.clf()
   sns.histplot(df.medv, kde=True)
   plt.savefig('figures/figure2-09.png')
 
@@ -1446,7 +1442,6 @@ Let's first plot the data:
 Applying logarithm transformation:
 
 #+begin_src python :results file figures/figure2-10.png
-  plt.clf()
   log_price = np.log1p(df.medv)
   sns.histplot(log_price, kde=True)
   plt.savefig('figures/figure2-10.png')
@@ -1492,7 +1487,6 @@ Plot the results:
 
 #+begin_src python :results file figure/figure2-11.png
   y_pred = w_0 + X_train.dot(w)
-  plt.clf()
   sns.histplot(y_pred, label='pred')
   sns.histplot(y_train, label='y', color='red')
   plt.legend()
@@ -1547,7 +1541,6 @@ Plot the results:
 
 #+begin_src python :results file figure/figure2-12.png
   y_pred = w_0 + X_train.dot(w)
-  plt.clf()
   sns.histplot(y_pred, label='pred')
   sns.histplot(y_train, label='y', color='red')
   plt.legend()
@@ -3686,7 +3679,6 @@ We can plot them:
 
 #+header: :var path="figures/figure4-01.png"
 #+begin_src python :results file :noweb strip-export
-  plt.clf()
   plt.plot(df_scores.threshold, df_scores.tpr, label='TPR')
   plt.plot(df_scores.threshold, df_scores.fpr, label='FPR')
   plt.legend()
@@ -3767,7 +3759,6 @@ Let's plot them:
 
 #+header: :var path="figures/figure4-02.png"
 #+begin_src python :results file :noweb strip-export
-  plt.clf()
   plt.plot(df_rand.threshold, df_rand.tpr, label='TPR')
   plt.plot(df_rand.threshold, df_rand.fpr, label='FPR')
   plt.legend()
@@ -3827,7 +3818,6 @@ set of predictions that goes from 0 to 1:
 
 #+header: :var path="figures/figure4-03.png"
 #+begin_src python :results file :noweb strip-export
-  plt.clf()
   plt.plot(df_ideal.threshold, df_ideal.tpr, label='TPR')
   plt.plot(df_ideal.threshold, df_ideal.fpr, label='FPR')
   plt.legend()
@@ -3855,8 +3845,6 @@ To get the ROC curve, we plot the TPR and FPR against each other:
 
 #+header: :var path=" figures/figure4-04.png"
 #+begin_src python :results file :noweb strip-export
-  plt.clf()
-
   plt.figure(figsize=(5, 5)) # make the plot square
 
   plt.plot(df_scores.fpr, df_scores.tpr, label='Model')
@@ -3893,8 +3881,6 @@ So we only need the following code:
 
 #+header: :var path="figures/figure4-05.png"
 #+begin_src python :results file :noweb strip-export
-  plt.clf()
-
   plt.figure(figsize=(5, 5)) # make the plot square
 
   plt.plot(df_scores.fpr, df_scores.tpr)
@@ -3917,7 +3903,6 @@ Obviously, Scikit-learn can compute the ROC curve for us:
 
   fpr, tpr, thresholds = roc_curve(y_val, y_pred)
 
-  plt.clf()
   plt.figure(figsize=(5, 5))
   plt.plot(fpr, tpr)
   plt.plot([0,1], [0,1])
@@ -4240,7 +4225,6 @@ Calculate precision and recall and add them to the dataframe:
 And plot the results:
 
 #+begin_src python :results file figures/figure4-07.png
-  plt.clf()
   plt.plot(df_scores.threshold, df_scores.precision, label='precision')
   plt.plot(df_scores.threshold, df_scores.recall, label='recall')
   plt.legend()
