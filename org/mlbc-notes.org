@@ -4279,6 +4279,32 @@ F1 = 2 · P · R / (P + R)
 :     threshold   tp   fp   fn   tn  precision    recall       f1
 : 45       0.45  189  123  108  707   0.605769  0.636364  0.62069
 
+*** AU PR
+
+The AU PR (Area under Precision-Recall curve) is a better measure of a model's
+accuracy when the dataset is highly unbalanced (say, 1000 negatives to 1
+positive). The precision-recall curve is obtained by plotting recall on the
+x-axis and precision on the y-axis:
+
+#+header: :var path="figures/figure4-08.png"
+#+begin_src python :results file :noweb strip-export
+  from sklearn.metrics import precision_recall_curve
+
+  precision, recall, thresholds = precision_recall_curve(y_val, y_pred)
+
+  plt.figure(figsize=(5, 5))
+  plt.plot(recall, precision)
+  plt.plot([0,1], [0,1])
+  plt.legend()
+
+  plt.xlabel('Recall')
+  plt.ylabel('Precision')
+
+  <<savefig>>
+#+end_src
+
+#+RESULTS:
+[[file:figures/figure4-08.png]]
 
 
 * COMMENT Local Variables
