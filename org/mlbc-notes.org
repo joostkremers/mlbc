@@ -4122,12 +4122,10 @@ Let's check the results:
 In choosing a regularisation amount to use, one should look at the highest
 possible mean but at the same time at the lowest possible standard deviation.
 The numbers in the book deviate a bit from the ones here, but as in the book,
-0.5 seems to be the best choice.
-
- #+begin_remark
- 1.0 gives equal results, but I think it's best to keep C as small as possible.
- Perhaps because with a smaller C, training is quicker.
- #+end_remark
+0.5 seems to be the best choice. 1.0 gives the same mean and standard deviation,
+but in general it's better to keep the regularisation constant as small as
+possible: it means that the weights in the model are smaller, which in turn
+means there is a better chance that the model will behave well with real data.
 
 As a final step, let us test the model with C=0.5 against the test data, which
 we've held out entirely:
@@ -4245,6 +4243,7 @@ Finding the point where precision and recall intersect:
 #+RESULTS:
 :     threshold   tp   fp   fn   tn  precision    recall  difference
 : 47       0.47  182  113  115  717   0.616949  0.612795    0.004155
+
 
 
 * COMMENT Local Variables
