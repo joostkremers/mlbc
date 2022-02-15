@@ -3866,7 +3866,7 @@ always 'predict' all positives to be positives), we get the curve as shown.
 spot at (0,1) does.)
 
 In an actual model, the ROC curve should always be between these two lines. The
-closer to the idea curve, the better.
+closer to the ideal curve, the better.
 
 Note that we do not need to generate the ideal and random models every time,
 because their ROC curves are always the same. It's common to include a simple
