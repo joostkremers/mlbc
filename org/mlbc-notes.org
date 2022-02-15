@@ -3270,7 +3270,7 @@ Nope, still doesn't seem to do any better.
 
 ** Notes to chapter 4                                             :noexport:
 :PROPERTIES:
-:header-args:python+: :session ch4-notes
+:header-args:python+: :session mlbc4
 :END:
 
 *** Repeat the code from chapter 3
@@ -4147,7 +4147,7 @@ something to worry about.
 
 ** Exercises
 :PROPERTIES:
-:header-args:python+: :session ch4-notes
+:header-args:python+: :session mlbc4
 :END:
 
 *** Calculate and plot precision and recall for different threshold values.
