@@ -4220,12 +4220,15 @@ Calculate precision and recall and add them to the dataframe:
 
 Plotting the results of the previous exercise:
 
-#+begin_src python :results file figures/figure4-07.png
+#+header: :var path="figures/figure4-07.png"
+#+begin_src python :results file :noweb strip-export
   plt.plot(df_scores.threshold, df_scores.precision, label='precision')
   plt.plot(df_scores.threshold, df_scores.recall, label='recall')
   plt.legend()
-  plt.savefig('figures/figure4-07.png')
-  'figures/figure4-07.png'
+
+  plt.xlabel("Threshold")
+
+  <<savefig>>
 #+end_src
 
 #+RESULTS:
