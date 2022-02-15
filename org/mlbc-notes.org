@@ -4242,6 +4242,40 @@ Finding the point where precision and recall intersect:
 :     threshold   tp   fp   fn   tn  precision    recall  difference
 : 47       0.47  182  113  115  717   0.616949  0.612795    0.004155
 
+*** F1-score
+
+F1 = 2 · P · R / (P + R)
+
+#+begin_src python
+  df_scores['f1'] = 2 * df_scores['precision'] * df_scores['recall'] / (df_scores['precision'] + df_scores['recall'])
+
+  df_scores[::10]
+#+end_src
+
+#+RESULTS:
+#+begin_example
+     threshold   tp   fp   fn   tn  precision    recall        f1
+0          0.0  297  830    0    0   0.263531  1.000000  0.417135
+10         0.1  274  445   23  385   0.381085  0.922559  0.539370
+20         0.2  247  305   50  525   0.447464  0.831650  0.581861
+30         0.3  220  211   77  619   0.510441  0.740741  0.604396
+40         0.4  197  154  100  676   0.561254  0.663300  0.608025
+50         0.5  169  103  128  727   0.621324  0.569024  0.594025
+60         0.6  121   62  176  768   0.661202  0.407407  0.504167
+70         0.7   71   27  226  803   0.724490  0.239057  0.359494
+80         0.8   17    3  280  827   0.850000  0.057239  0.107256
+90         0.9    0    0  297  830        NaN  0.000000       NaN
+100        1.0    0    0  297  830        NaN  0.000000       NaN
+#+end_example
+
+#+begin_src python
+  df_scores.loc[df_scores['f1'] == df_scores['f1'].max()]
+#+end_src
+
+#+RESULTS:
+:     threshold   tp   fp   fn   tn  precision    recall       f1
+: 45       0.45  189  123  108  707   0.605769  0.636364  0.62069
+
 
 
 * COMMENT Local Variables
