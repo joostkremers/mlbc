@@ -3212,8 +3212,6 @@ We create a new vectorizer with only the features that we selected above.
 #+end_src
 
 #+RESULTS:
-: /home/joost/.cache/pypoetry/virtualenvs/mlbc-JThvy3A1-py3.8/lib/python3.8/site-packages/pandas/core/frame.py:1485: FutureWarning: Using short name for 'orient' is deprecated. Only the options: ('dict', list, 'series', 'split', 'records', 'index') will be used in a future version. Use one of the above to silence this warning.
-:   warnings.warn(
 : training set accuracy  : 0.723
 : validation set accuracy: 0.72
 
@@ -3257,8 +3255,6 @@ Let's try again with yet fewer features:
 #+end_src
 
 #+RESULTS:
-: /home/joost/.cache/pypoetry/virtualenvs/mlbc-JThvy3A1-py3.8/lib/python3.8/site-packages/pandas/core/frame.py:1485: FutureWarning: Using short name for 'orient' is deprecated. Only the options: ('dict', list, 'series', 'split', 'records', 'index') will be used in a future version. Use one of the above to silence this warning.
-:   warnings.warn(
 : training set accuracy  : 0.723
 : validation set accuracy: 0.72
 
