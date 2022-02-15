@@ -29,7 +29,6 @@ creates a file =mlutils.py= in the current directory, which can then be imported
 
 #+NAME: savefig
 #+BEGIN_SRC python :results file :exports none
-
   # The =path= variable must be set by the block that expands this org source code
   # block:
 
