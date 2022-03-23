@@ -3268,14 +3268,15 @@ Nope, still doesn't seem to do any better.
 
 * Chapter 4: Evaluation metrics for classification
 :PROPERTIES:
-:header-args:jupyter-python+: :session mlbc4
+:header-args:jupyter-python+: :session mlbc4 :kernel mlbc-3mO1CerA-py3.9
 :END:
 
 ** Notes to chapter 4                                             :noexport:
 
 *** Repeat the code from chapter 3
 
-#+begin_src python :results silent
+#+NAME: src:ch4-setup-code
+#+begin_src jupyter-python :results silent
   import numpy as np
   import pandas as pd
 
@@ -3327,24 +3328,24 @@ Nope, still doesn't seem to do any better.
 
 Calculate the accuracy:
 
-#+begin_src python
+#+begin_src jupyter-python
   y_pred = model.predict_proba(X_val)[:,1]
   churn = y_pred >= 0.5
   round((churn == y_val).mean(), 3)
 #+end_src
 
 #+RESULTS:
-: 0.797
+: 0.795
 
 Scikit-learn also offers various metrics to evaluate a model:
 
-#+begin_src python :results silent
+#+begin_src jupyter-python :results silent
   from sklearn.metrics import accuracy_score
 #+end_src
 
 Now let's loop over several threshold values to see which one gives the best accuracy:
 
-#+begin_src python :results output
+#+begin_src jupyter-python :results output
   thresholds = np.linspace(0, 1, 11)
 
   for t in thresholds:
@@ -3355,17 +3356,17 @@ Now let's loop over several threshold values to see which one gives the best acc
 
 #+RESULTS:
 #+begin_example
-0.0 0.264
-0.1 0.586
-0.2 0.684
-0.3 0.744
-0.4 0.775
-0.5 0.797
-0.6 0.788
-0.7 0.776
-0.8 0.749
-0.9 0.736
-1.0 0.736
+  0.0 0.264
+  0.1 0.585
+  0.2 0.685
+  0.3 0.745
+  0.4 0.775
+  0.5 0.795
+  0.6 0.789
+  0.7 0.776
+  0.8 0.749
+  0.9 0.736
+  1.0 0.736
 #+end_example
 
 A threshold value of 0.5 gives the best accuracy.
@@ -3380,7 +3381,7 @@ that always predicts the same value.
 Since most users do not churn, such a dummy baseline would predict =False= for
 all users. This is easy to set up:
 
-#+begin_src python :results silent
+#+begin_src jupyter-python :results silent
   size_val = len(y_val)
   baseline = np.repeat(False, size_val)
 #+end_src
@@ -3388,7 +3389,7 @@ all users. This is easy to set up:
 This simply creates an array of the same size as =y_val= with all =False=
 values. The accuracy of such a prediction against =y_val= is:
 
-#+begin_src python :results output
+#+begin_src jupyter-python :results output
   print(f"Accuracy: {round(accuracy_score(baseline, y_val), 3)}")
 #+end_src
 
@@ -3437,7 +3438,7 @@ If we substitute the actual numbers, we get the confusion table:
 
 We can easily do this in Numpy:
 
-#+begin_src python :results silent
+#+begin_src jupyter-python :results silent
   t = 0.5
   predict_churn = (y_pred >= t)
   predict_no_churn = (y_pred < t)
@@ -3462,13 +3463,13 @@ Since we only have 0 and 1 in the lists of true/false positives and negatives,
 summing them gives the number of items in them. Summing the confusion table
 itself gives the total number of items.
 
-#+begin_src python
+#+begin_src jupyter-python
   confusion_table.round(3)
 #+end_src
 
 #+RESULTS:
-| 0.645 | 0.091 |
-| 0.112 | 0.152 |
+: array([[0.645, 0.091],
+:        [0.114, 0.15 ]])
 
 Let us plug these values into the table above, for a better overview:
 
@@ -3503,7 +3504,7 @@ accuracy = (TN + TP) / (TN + TP + FN + FP)
 
 which gives us:
 
-#+begin_src python :results output
+#+begin_src jupyter-python :results output
   accuracy = (true_negative + true_positive) / (true_negative + true_positive + false_negative + false_positive)
   print(f"Accuracy: {round(accuracy, 2)}")
 #+end_src
@@ -3523,7 +3524,7 @@ P = TP / (TP + FP)
 
 In our case:
 
-#+begin_src python :results output
+#+begin_src jupyter-python :results output
   print(f"Precision: {round(true_positive / (true_positive + false_positive), 2)}")
 #+end_src
 
@@ -3536,12 +3537,12 @@ R = TP / (TP + FN)
 
 In our case:
 
-#+begin_src python :results output
+#+begin_src jupyter-python :results output
   print(f"Recall: {round(true_positive / (true_positive + false_negative), 2)}")
 #+end_src
 
 #+RESULTS:
-: Recall: 0.58
+: Recall: 0.57
 
 Neither precision nor recall take true negatives into account. In imbalanced
 datasets, these are usually the largest group (in our case, they constitute 64.5%
@@ -3610,7 +3611,7 @@ To use these values as metrics, we need to calculate them at many different thre
 
 Let us evaluate the model at different thresholds:
 
-#+begin_src python
+#+begin_src jupyter-python :display plain
   scores = []
 
   thresholds = np.linspace(0, 1, 101)
@@ -3630,63 +3631,63 @@ Let us evaluate the model at different thresholds:
 
 #+RESULTS:
 #+begin_example
-     threshold   tp   fp   fn   tn
-0          0.0  297  830    0    0
-10         0.1  274  444   23  386
-20         0.2  247  306   50  524
-30         0.3  220  211   77  619
-40         0.4  197  154  100  676
-50         0.5  171  103  126  727
-60         0.6  121   63  176  767
-70         0.7   71   27  226  803
-80         0.8   17    3  280  827
-90         0.9    0    0  297  830
-100        1.0    0    0  297  830
+       threshold   tp   fp   fn   tn
+  0          0.0  297  830    0    0
+  10         0.1  274  445   23  385
+  20         0.2  247  305   50  525
+  30         0.3  221  211   76  619
+  40         0.4  197  154  100  676
+  50         0.5  169  103  128  727
+  60         0.6  121   62  176  768
+  70         0.7   71   27  226  803
+  80         0.8   17    3  280  827
+  90         0.9    0    0  297  830
+  100        1.0    0    0  297  830
 #+end_example
 
 Now we can compute the TPR and FPR scores for all values at once:
 
-#+begin_src python :results silent
+#+begin_src jupyter-python :results silent
   df_scores['tpr'] = df_scores.tp / (df_scores.tp + df_scores.fn)
   df_scores['fpr'] = df_scores.fp / (df_scores.fp + df_scores.tn)
 #+end_src
 
-#+begin_src python
+#+begin_src jupyter-python :display plain
   df_scores[::10]
 #+end_src
 
 #+RESULTS:
 #+begin_example
-     threshold   tp   fp   fn   tn       tpr       fpr
-0          0.0  297  830    0    0  1.000000  1.000000
-10         0.1  274  445   23  385  0.922559  0.536145
-20         0.2  247  305   50  525  0.831650  0.367470
-30         0.3  220  211   77  619  0.740741  0.254217
-40         0.4  197  154  100  676  0.663300  0.185542
-50         0.5  169  103  128  727  0.569024  0.124096
-60         0.6  121   63  176  767  0.407407  0.075904
-70         0.7   71   27  226  803  0.239057  0.032530
-80         0.8   17    3  280  827  0.057239  0.003614
-90         0.9    0    0  297  830  0.000000  0.000000
-100        1.0    0    0  297  830  0.000000  0.000000
+       threshold   tp   fp   fn   tn       tpr       fpr
+  0          0.0  297  830    0    0  1.000000  1.000000
+  10         0.1  274  445   23  385  0.922559  0.536145
+  20         0.2  247  305   50  525  0.831650  0.367470
+  30         0.3  221  211   76  619  0.744108  0.254217
+  40         0.4  197  154  100  676  0.663300  0.185542
+  50         0.5  169  103  128  727  0.569024  0.124096
+  60         0.6  121   62  176  768  0.407407  0.074699
+  70         0.7   71   27  226  803  0.239057  0.032530
+  80         0.8   17    3  280  827  0.057239  0.003614
+  90         0.9    0    0  297  830  0.000000  0.000000
+  100        1.0    0    0  297  830  0.000000  0.000000
 #+end_example
 
 We can plot them:
 
-#+header: :var path="figures/figure4-01.png"
-#+begin_src python :results file :noweb strip-export
+#+begin_src jupyter-python :file figures/figure4-01.png
   plt.plot(df_scores.threshold, df_scores.tpr, label='TPR')
   plt.plot(df_scores.threshold, df_scores.fpr, label='FPR')
   plt.legend()
 
   plt.xlabel('Threshold')
   plt.ylabel('Rate')
-
-  <<savefig>>
 #+end_src
 
 #+RESULTS:
+:RESULTS:
+: Text(0, 0.5, 'Rate')
 [[file:figures/figure4-01.png]]
+:END:
 
 Both TPR and FPR start at 100%: if the threshold is 0.0%, everyone is predicted to
 churn, which means that everyone that does churn is correctly predicted to churn
@@ -3704,7 +3705,7 @@ A random model outputs a random score between 0 and 1 regardless of the input
 values. Implementing it is easy. Let's first create a function to calculate TPR
 and FPR:
 
-#+begin_src python :results silent
+#+begin_src jupyter-python :results silent
   def tpr_fpr_dataframe(y_val, y_pred):
       scores = []
 
@@ -3728,7 +3729,7 @@ and FPR:
 
 Now the model:
 
-#+begin_src python
+#+begin_src jupyter-python :display plain
   np.random.seed(1) # fix random seed for reproducibility
   y_rand = np.random.uniform(0, 1, size=len(y_val))
   df_rand = tpr_fpr_dataframe(y_val, y_rand)
@@ -3737,33 +3738,33 @@ Now the model:
 
 #+RESULTS:
 #+begin_example
-     threshold   tp   fp   fn   tn       tpr       fpr
-0          0.0  297  830    0    0  1.000000  1.000000
-10         0.1  268  745   29   85  0.902357  0.897590
-20         0.2  235  662   62  168  0.791246  0.797590
-30         0.3  200  591   97  239  0.673401  0.712048
-40         0.4  167  523  130  307  0.562290  0.630120
-50         0.5  138  436  159  394  0.464646  0.525301
-60         0.6  105  348  192  482  0.353535  0.419277
-70         0.7   83  254  214  576  0.279461  0.306024
-80         0.8   49  177  248  653  0.164983  0.213253
-90         0.9   31   81  266  749  0.104377  0.097590
-100        1.0    0    0  297  830  0.000000  0.000000
+       threshold   tp   fp   fn   tn       tpr       fpr
+  0          0.0  297  830    0    0  1.000000  1.000000
+  10         0.1  268  745   29   85  0.902357  0.897590
+  20         0.2  235  662   62  168  0.791246  0.797590
+  30         0.3  200  591   97  239  0.673401  0.712048
+  40         0.4  167  523  130  307  0.562290  0.630120
+  50         0.5  138  436  159  394  0.464646  0.525301
+  60         0.6  105  348  192  482  0.353535  0.419277
+  70         0.7   83  254  214  576  0.279461  0.306024
+  80         0.8   49  177  248  653  0.164983  0.213253
+  90         0.9   31   81  266  749  0.104377  0.097590
+  100        1.0    0    0  297  830  0.000000  0.000000
 #+end_example
 
 Let's plot them:
 
-#+header: :var path="figures/figure4-02.png"
-#+begin_src python :results file :noweb strip-export
+#+begin_src jupyter-python :file figures/figure4-02.png
   plt.plot(df_rand.threshold, df_rand.tpr, label='TPR')
   plt.plot(df_rand.threshold, df_rand.fpr, label='FPR')
   plt.legend()
-
-  <<savefig>>
 #+end_src
 
 #+RESULTS:
+:RESULTS:
+: <matplotlib.legend.Legend at 0x7fb5089cabe0>
 [[file:figures/figure4-02.png]]
+:END:
 
 
 With a random model, both TPR and FPR decrease in a straight line: at a
@@ -3782,7 +3783,7 @@ churning customers.
 To create such a model, we can create an ordered set of target variables and a
 set of predictions that goes from 0 to 1:
 
-#+begin_src python :results silent
+#+begin_src jupyter-python :results silent
   num_neg = (y_val == 0).sum()
   num_pos = (y_val == 1).sum()
 
@@ -3792,37 +3793,37 @@ set of predictions that goes from 0 to 1:
   df_ideal = tpr_fpr_dataframe(y_ideal, y_pred_ideal)
 #+end_src
 
-#+begin_src python
+#+begin_src jupyter-python :display plain
   df_ideal[::10]
 #+end_src
 
 #+RESULTS:
 #+begin_example
-     threshold   tp   fp   fn   tn       tpr       fpr
-0          0.0  297  830    0    0  1.000000  1.000000
-10         0.1  297  717    0  113  1.000000  0.863855
-20         0.2  297  604    0  226  1.000000  0.727711
-30         0.3  297  492    0  338  1.000000  0.592771
-40         0.4  297  379    0  451  1.000000  0.456627
-50         0.5  297  267    0  563  1.000000  0.321687
-60         0.6  297  154    0  676  1.000000  0.185542
-70         0.7  297   41    0  789  1.000000  0.049398
-80         0.8  226    0   71  830  0.760943  0.000000
-90         0.9  113    0  184  830  0.380471  0.000000
-100        1.0    1    0  296  830  0.003367  0.000000
+       threshold   tp   fp   fn   tn       tpr       fpr
+  0          0.0  297  830    0    0  1.000000  1.000000
+  10         0.1  297  717    0  113  1.000000  0.863855
+  20         0.2  297  604    0  226  1.000000  0.727711
+  30         0.3  297  492    0  338  1.000000  0.592771
+  40         0.4  297  379    0  451  1.000000  0.456627
+  50         0.5  297  267    0  563  1.000000  0.321687
+  60         0.6  297  154    0  676  1.000000  0.185542
+  70         0.7  297   41    0  789  1.000000  0.049398
+  80         0.8  226    0   71  830  0.760943  0.000000
+  90         0.9  113    0  184  830  0.380471  0.000000
+  100        1.0    1    0  296  830  0.003367  0.000000
 #+end_example
 
-#+header: :var path="figures/figure4-03.png"
-#+begin_src python :results file :noweb strip-export
+#+begin_src jupyter-python :file figures/figure4-03.png
   plt.plot(df_ideal.threshold, df_ideal.tpr, label='TPR')
   plt.plot(df_ideal.threshold, df_ideal.fpr, label='FPR')
   plt.legend()
-
-  <<savefig>
 #+end_src
 
 #+RESULTS:
+:RESULTS:
+: <matplotlib.legend.Legend at 0x7fb50892bac0>
 [[file:figures/figure4-03.png]]
+:END:
 
 At a threshold of .74, the model flips: below it, we always correctly classify
 all churning customers as churning, so that TPR is at 100%. At the same time,
@@ -3839,8 +3840,7 @@ customers as non-churning.
 
 To get the ROC curve, we plot the TPR and FPR against each other:
 
-#+header: :var path=" figures/figure4-04.png"
-#+begin_src python :results file :noweb strip-export
+#+begin_src jupyter-python :file figures/figure4-04.png
   plt.figure(figsize=(5, 5)) # make the plot square
 
   plt.plot(df_scores.fpr, df_scores.tpr, label='Model')
@@ -3851,12 +3851,13 @@ To get the ROC curve, we plot the TPR and FPR against each other:
   plt.ylabel('True Positive Rate')
 
   plt.legend()
-
-  <<savefig>>
 #+end_src
 
 #+RESULTS:
+:RESULTS:
+: <matplotlib.legend.Legend at 0x7fb508916190>
 [[file:figures/figure4-04.png]]
+:END:
 
 In the random model, the ROC curve is more or less a straight line. In the ideal
 model, the TPR is 100% and the FPR 0%, making (0,1) the ideal spot. Because in
@@ -3875,8 +3876,7 @@ usually left out. The position (0,1) is simply called the "ideal spot".
 
 So we only need the following code:
 
-#+header: :var path="figures/figure4-05.png"
-#+begin_src python :results file :noweb strip-export
+#+begin_src jupyter-python :file figures/figure4-05.png
   plt.figure(figsize=(5, 5)) # make the plot square
 
   plt.plot(df_scores.fpr, df_scores.tpr)
@@ -3884,33 +3884,35 @@ So we only need the following code:
 
   plt.xlabel('False Positive Rate')
   plt.ylabel('True Positive Rate')
-
-  <<savefig>>
 #+end_src
 
 #+RESULTS:
+:RESULTS:
+: Text(0, 0.5, 'True Positive Rate')
 [[file:figures/figure4-05.png]]
+:END:
 
 Obviously, Scikit-learn can compute the ROC curve for us:
 
-#+header: :var path="figures/figure4-06.png"
-#+begin_src python :results file :noweb strip-export
+#+begin_src jupyter-python :file figures/figure4-06.png
   from sklearn.metrics import roc_curve
 
   fpr, tpr, thresholds = roc_curve(y_val, y_pred)
 
   plt.figure(figsize=(5, 5))
-  plt.plot(fpr, tpr)
-  plt.plot([0,1], [0,1])
+  plt.plot(fpr, tpr, label='model')
+  plt.plot([0,1], [0,1], label='random')
+  plt.legend()
 
   plt.xlabel('False Positive Rate')
   plt.ylabel('True Positive Rate')
-
-  <<savefig>>
 #+end_src
 
 #+RESULTS:
+:RESULTS:
+: Text(0, 0.5, 'True Positive Rate')
 [[file:figures/figure4-06.png]]
+:END:
 
 This curve is identical to the one above.
 
@@ -3930,26 +3932,26 @@ poor.
 
 The AUC can be computed using the =auc= function from =sklearn.metrics=:
 
-#+begin_src python
+#+begin_src jupyter-python
   from sklearn.metrics import auc
   auc(df_scores.fpr, df_scores.tpr)
 #+end_src
 
 #+RESULTS:
-: 0.8217577380227983
+: 0.8219058050383352
 
 An AUC of 0.82 is fairly good.
 
 Scikit-learn also provides a function that takes care of computing the TPR and
-FPR: =roc_auc_score=:
+FPR, =roc_auc_score=:
 
- #+begin_src python
+ #+begin_src jupyter-python
    from sklearn.metrics import roc_auc_score
    roc_auc_score(y_val, y_pred)
  #+end_src
 
  #+RESULTS:
- : 0.8213804713804713
+ : 0.85175643655678
 
 The AUC has a nice probabilistic interpretation: it's the probability that a
 randomly selected positive example has a higher score than a randomly selected
@@ -3978,7 +3980,7 @@ three different validation scores.
 To make training and validation easier, we create functions to perform these
 tasks:
 
-#+begin_src python :results silent
+#+begin_src jupyter-python :results silent
   def train(df, y):
       cat = df[categorical + numerical].to_dict('records')
 
@@ -4004,7 +4006,7 @@ tasks:
 
 Scikit-learn provides a class for K-fold cross validation:
 
-#+begin_src python :results silent
+#+begin_src jupyter-python :results silent
   from sklearn.model_selection import KFold
 
   kfold = KFold(n_splits=10, shuffle=True, random_state=1)
@@ -4025,16 +4027,16 @@ Scikit-learn provides a class for K-fold cross validation:
       aucs.append(auc)
 #+end_src
 
-#+begin_src python
+#+begin_src jupyter-python
   aucs
 #+end_src
 
 #+RESULTS:
-| 0.8518518518518519 | 0.8418626237623762 | 0.8565686095377307 | 0.8287630647683318 | 0.8271557071960298 | 0.838061938061938 | 0.8386844676001303 | 0.8277751423149905 | 0.8425818882466282 | 0.856912372693355 |
+| 0.85175643655678 | 0.841878094059406 | 0.8565353886018969 | 0.8287959838696404 | 0.8270626550868486 | 0.838145188145188 | 0.8386356235753827 | 0.8275537634408603 | 0.8424188528234772 | 0.8567106988000404 |
 
 With a list of AUCs, we can do some statistics:
 
-#+begin_src python :results output
+#+begin_src jupyter-python :results output
   print('auc = %0.3f ± %0.3f' % (np.mean(aucs), np.std(aucs)))
 #+end_src
 
@@ -4055,7 +4057,7 @@ As an example, the logistic regression model can take a parameter =C= that sets
 the amount of regularisation. We can experiment with varying this variable.
 First, we modify =train= to take an additional argument =C=:
 
-#+begin_src python :results silent
+#+begin_src jupyter-python :results silent
   def train(df, y, C):
       cat = df[categorical + numerical].to_dict('records')
 
@@ -4072,7 +4074,7 @@ First, we modify =train= to take an additional argument =C=:
 
 We can now loop over different values for C:
 
-#+begin_src python :results silent
+#+begin_src jupyter-python :results silent
   nfolds = 10
   kfold = KFold(n_splits=nfolds, shuffle=True, random_state=1)
 
@@ -4102,7 +4104,7 @@ We can now loop over different values for C:
 
 Let's check the results:
 
-#+begin_src python
+#+begin_src jupyter-python :display plain
   round(df_Cs, 3)
 #+end_src
 
@@ -4126,7 +4128,7 @@ means there is a better chance that the model will behave well with real data.
 As a final step, let us test the model with C=0.5 against the test data, which
 we've held out entirely:
 
-#+begin_src python :results output
+#+begin_src jupyter-python :results output
   y_train = df_train_full.churn.values
   y_test = df_test.churn.values
 
@@ -4150,9 +4152,11 @@ something to worry about.
 *** Calculate and plot precision and recall for different threshold values.
 
 The following code (copied from above) calculates the values of the confusion
-matrix for different thresholds:
+matrix for different thresholds. (Note: this code block should be run after
+evaluating [[src:ch4-setup-code]], otherwise the =model= refers to an incorrect
+LogisticRegression model.)
 
-#+begin_src python
+#+begin_src jupyter-python :display plain
   y_pred = model.predict_proba(X_val)[:,1]
 
   scores = []
@@ -4174,23 +4178,23 @@ matrix for different thresholds:
 
 #+RESULTS:
 #+begin_example
-     threshold   tp   fp   fn   tn
-0          0.0  297  830    0    0
-10         0.1  274  445   23  385
-20         0.2  247  305   50  525
-30         0.3  220  211   77  619
-40         0.4  197  154  100  676
-50         0.5  169  103  128  727
-60         0.6  121   62  176  768
-70         0.7   71   27  226  803
-80         0.8   17    3  280  827
-90         0.9    0    0  297  830
-100        1.0    0    0  297  830
+       threshold   tp   fp   fn   tn
+  0          0.0  297  830    0    0
+  10         0.1  274  445   23  385
+  20         0.2  247  305   50  525
+  30         0.3  221  211   76  619
+  40         0.4  197  154  100  676
+  50         0.5  169  103  128  727
+  60         0.6  121   62  176  768
+  70         0.7   71   27  226  803
+  80         0.8   17    3  280  827
+  90         0.9    0    0  297  830
+  100        1.0    0    0  297  830
 #+end_example
 
 Calculate precision and recall and add them to the dataframe:
 
-#+begin_src python
+#+begin_src jupyter-python :display plain
   df_scores['precision'] = df_scores['tp'] / (df_scores['tp'] + df_scores['fp'])
   df_scores['recall'] = df_scores['tp'] / (df_scores['tp'] + df_scores['fn'])
 
@@ -4199,41 +4203,41 @@ Calculate precision and recall and add them to the dataframe:
 
 #+RESULTS:
 #+begin_example
-     threshold   tp   fp   fn   tn  precision    recall
-0          0.0  297  830    0    0   0.263531  1.000000
-10         0.1  274  445   23  385   0.381085  0.922559
-20         0.2  247  305   50  525   0.447464  0.831650
-30         0.3  220  211   77  619   0.510441  0.740741
-40         0.4  197  154  100  676   0.561254  0.663300
-50         0.5  169  103  128  727   0.621324  0.569024
-60         0.6  121   62  176  768   0.661202  0.407407
-70         0.7   71   27  226  803   0.724490  0.239057
-80         0.8   17    3  280  827   0.850000  0.057239
-90         0.9    0    0  297  830        NaN  0.000000
-100        1.0    0    0  297  830        NaN  0.000000
+       threshold   tp   fp   fn   tn  precision    recall
+  0          0.0  297  830    0    0   0.263531  1.000000
+  10         0.1  274  445   23  385   0.381085  0.922559
+  20         0.2  247  305   50  525   0.447464  0.831650
+  30         0.3  221  211   76  619   0.511574  0.744108
+  40         0.4  197  154  100  676   0.561254  0.663300
+  50         0.5  169  103  128  727   0.621324  0.569024
+  60         0.6  121   62  176  768   0.661202  0.407407
+  70         0.7   71   27  226  803   0.724490  0.239057
+  80         0.8   17    3  280  827   0.850000  0.057239
+  90         0.9    0    0  297  830        NaN  0.000000
+  100        1.0    0    0  297  830        NaN  0.000000
 #+end_example
 
 *** Precision/Recall tradeoff
 
 Plotting the results of the previous exercise:
 
-#+header: :var path="figures/figure4-07.png"
-#+begin_src python :results file :noweb strip-export
+#+begin_src jupyter-python :file figures/figure4-07.png
   plt.plot(df_scores.threshold, df_scores.precision, label='precision')
   plt.plot(df_scores.threshold, df_scores.recall, label='recall')
   plt.legend()
 
   plt.xlabel("Threshold")
-
-  <<savefig>>
 #+end_src
 
 #+RESULTS:
+:RESULTS:
+: Text(0.5, 0, 'Threshold')
 [[file:figures/figure4-07.png]]
+:END:
 
 Finding the point where precision and recall intersect:
 
-#+begin_src python
+#+begin_src jupyter-python :display plain
   df_scores['difference'] = (df_scores['precision'] - df_scores['recall']).abs()
   df_scores.loc[df_scores['difference'] == min(df_scores['difference'])]
 #+end_src
@@ -4246,7 +4250,7 @@ Finding the point where precision and recall intersect:
 
 F1 = 2 · P · R / (P + R)
 
-#+begin_src python
+#+begin_src jupyter-python :display plain
   df_scores['f1'] = 2 * df_scores['precision'] * df_scores['recall'] / (df_scores['precision'] + df_scores['recall'])
 
   df_scores[::10]
@@ -4254,54 +4258,57 @@ F1 = 2 · P · R / (P + R)
 
 #+RESULTS:
 #+begin_example
-     threshold   tp   fp   fn   tn  precision    recall        f1
-0          0.0  297  830    0    0   0.263531  1.000000  0.417135
-10         0.1  274  445   23  385   0.381085  0.922559  0.539370
-20         0.2  247  305   50  525   0.447464  0.831650  0.581861
-30         0.3  220  211   77  619   0.510441  0.740741  0.604396
-40         0.4  197  154  100  676   0.561254  0.663300  0.608025
-50         0.5  169  103  128  727   0.621324  0.569024  0.594025
-60         0.6  121   62  176  768   0.661202  0.407407  0.504167
-70         0.7   71   27  226  803   0.724490  0.239057  0.359494
-80         0.8   17    3  280  827   0.850000  0.057239  0.107256
-90         0.9    0    0  297  830        NaN  0.000000       NaN
-100        1.0    0    0  297  830        NaN  0.000000       NaN
+       threshold   tp   fp   fn   tn  precision    recall  difference        f1
+  0          0.0  297  830    0    0   0.263531  1.000000    0.736469  0.417135
+  10         0.1  274  445   23  385   0.381085  0.922559    0.541474  0.539370
+  20         0.2  247  305   50  525   0.447464  0.831650    0.384186  0.581861
+  30         0.3  221  211   76  619   0.511574  0.744108    0.232534  0.606310
+  40         0.4  197  154  100  676   0.561254  0.663300    0.102046  0.608025
+  50         0.5  169  103  128  727   0.621324  0.569024    0.052300  0.594025
+  60         0.6  121   62  176  768   0.661202  0.407407    0.253795  0.504167
+  70         0.7   71   27  226  803   0.724490  0.239057    0.485433  0.359494
+  80         0.8   17    3  280  827   0.850000  0.057239    0.792761  0.107256
+  90         0.9    0    0  297  830        NaN  0.000000         NaN       NaN
+  100        1.0    0    0  297  830        NaN  0.000000         NaN       NaN
 #+end_example
 
-#+begin_src python
+#+begin_src jupyter-python :display plain
   df_scores.loc[df_scores['f1'] == df_scores['f1'].max()]
 #+end_src
 
 #+RESULTS:
-:     threshold   tp   fp   fn   tn  precision    recall       f1
-: 45       0.45  189  123  108  707   0.605769  0.636364  0.62069
+:     threshold   tp   fp   fn   tn  precision    recall  difference       f1
+: 45       0.45  189  123  108  707   0.605769  0.636364    0.030594  0.62069
 
 *** AU PR
 
 The AU PR (Area under Precision-Recall curve) is a better measure of a model's
 accuracy when the dataset is highly unbalanced (say, 1000 negatives to 1
 positive). The precision-recall curve is obtained by plotting recall on the
-x-axis and precision on the y-axis:
+x-axis and precision on the y-axis. (Note: the =no_skill= line is taken from [[https://machinelearningmastery.com/roc-curves-and-precision-recall-curves-for-imbalanced-classification/][ROC
+Curves and Precision-Recall Curves for Imbalanced Classification]].)
 
-#+header: :var path="figures/figure4-08.png"
-#+begin_src python :results file :noweb strip-export
+#+begin_src jupyter-python :file figures/figure4-08.png
   from sklearn.metrics import precision_recall_curve
 
   precision, recall, thresholds = precision_recall_curve(y_val, y_pred)
 
   plt.figure(figsize=(5, 5))
-  plt.plot(recall, precision)
-  plt.plot([0,1], [0,1])
+  plt.plot(recall, precision, label='model')
+  no_skill = len(y_val[y_val==1]) / len(y_val)
+  plt.plot([0,1], [no_skill, no_skill], label='no skill')
   plt.legend()
 
   plt.xlabel('Recall')
   plt.ylabel('Precision')
-
-  <<savefig>>
 #+end_src
 
 #+RESULTS:
+:RESULTS:
+: Text(0, 0.5, 'Precision')
 [[file:figures/figure4-08.png]]
+:END:
+
 
 
 * COMMENT Local Variables
