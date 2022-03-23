@@ -8,9 +8,6 @@
 #+HTML_HEAD: <script type="text/javascript" src="styles/readtheorg_theme/js/readtheorg.js"></script>
 #+STARTUP: overview
 
-* Introduction
-
-
 * Setup                                                            :noexport:
 
 ** Run the code in a virtual environment:
