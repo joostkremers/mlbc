@@ -4501,5 +4501,4 @@ Now check the result:
 # eval: (auto-fill-mode 1))
 # eval: (hl-line-mode 1)
 # eval: (auto-revert-mode 1)
-# eval: (mixed-pitch-mode -1)
 # End:
