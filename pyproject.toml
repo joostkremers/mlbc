@@ -11,6 +11,8 @@ pandas = "^1.1.4"
 matplotlib = "^3.3.3"
 seaborn = "^0.11.0"
 sklearn = "^0.0"
+Flask = "^2.0.3"
+requests = "^2.27.1"
 
 [tool.poetry.dev-dependencies]
 ipython = "^7.19.0"
