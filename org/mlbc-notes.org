@@ -4470,6 +4470,8 @@ To load the model again, we can use =pickle.load=:
 
 ** Flask
 
+Using Flask requires creating a Flask app, include here is =src/churn_serving.py=.
+
 After starting the Flask app in the =src= directory, we can access it from here:
 
 #+begin_src jupyter-python :results silent
